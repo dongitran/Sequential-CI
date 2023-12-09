@@ -3,13 +3,11 @@ function parseCurlString(curlData) {
   const headers = {};
   curlData = curlData.replace(/\n/g, "");
 
-  // Trích xuất thông tin URL
   const urlMatches = curlData.match(/curl --location '(.+?)'/);
   if (urlMatches) {
     options.url = urlMatches[1];
   }
 
-  // Trích xuất thông tin Headers
   const headerMatches = curlData.match(/-header '(.*?)'/g);
   if (headerMatches) {
     headerMatches.forEach((match) => {
@@ -19,7 +17,6 @@ function parseCurlString(curlData) {
     });
   }
 
-  // Trích xuất thông tin Data
   const dataMatches = curlData.match(/--data '(.+?)'/);
   if (dataMatches) {
     options.data = JSON.parse(dataMatches[1]);
