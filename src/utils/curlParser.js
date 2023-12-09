@@ -23,6 +23,20 @@ function parseCurlString(curlData) {
   const dataMatches = curlData.match(/--data '(.+?)'/);
   if (dataMatches) {
     options.data = JSON.parse(dataMatches[1]);
+  } else {
+    const formDataRegex = /--form '([^=]+)=([^']+)'/g;
+    const formData = {};
+
+    let match;
+    while ((match = formDataRegex.exec(curlData)) !== null) {
+      const [, key, value] = match;
+      const trimmedKey = key.trim();
+      const trimmedValue = value.trim();
+      formData[trimmedKey] = trimmedValue.replace(/"/g, "");
+    }
+
+    options.data = formData;
+    headers["Content-Type"] = "application/x-www-form-urlencoded";
   }
 
   options.method = "post";
