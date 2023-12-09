@@ -1,25 +1,26 @@
 function parseCurlString(curlData) {
   const options = {};
   const headers = {};
+  curlData = curlData.replace(/\n/g, "");
 
   // Trích xuất thông tin URL
-  const urlMatches = curlData.match(/curl '(.+?)'/);
+  const urlMatches = curlData.match(/curl --location '(.+?)'/);
   if (urlMatches) {
     options.url = urlMatches[1];
   }
 
   // Trích xuất thông tin Headers
-  const headerMatches = curlData.match(/-H '(.*?)'/g);
+  const headerMatches = curlData.match(/-header '(.*?)'/g);
   if (headerMatches) {
     headerMatches.forEach((match) => {
-      const [, header] = match.match(/-H '(.*?)'/);
+      const [, header] = match.match(/-header '(.*?)'/);
       const [key, value] = header.split(": ");
       headers[key] = value;
     });
   }
 
   // Trích xuất thông tin Data
-  const dataMatches = curlData.match(/--data-raw '(.+?)'/);
+  const dataMatches = curlData.match(/--data '(.+?)'/);
   if (dataMatches) {
     options.data = JSON.parse(dataMatches[1]);
   }

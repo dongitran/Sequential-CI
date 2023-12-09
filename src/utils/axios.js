@@ -12,8 +12,8 @@ async function performRequest(requestOptions) {
 
     return response.data;
   } catch (error) {
-    console.error("Error:", error);
-    throw error;
+    console.error("Error:", JSON.stringify(error));
+    //throw error;
   }
 }
 
