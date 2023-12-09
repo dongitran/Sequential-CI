@@ -5,7 +5,7 @@ function parseCurlString(curlData) {
   const headers = {};
   curlData = curlData.replace(/\n/g, "");
 
-  const urlMatches = curlData.match(/curl --location '(.+?)'/);
+  const urlMatches = curlData.match(/'([^']+)'/);
   if (urlMatches) {
     options.url = urlMatches[1];
   }
@@ -42,7 +42,11 @@ function parseCurlString(curlData) {
   if (isEmpty(options.data)) {
     options.method = "get";
   } else {
-    options.method = "post";
+    if (curlData.toLowerCase().includes("patch")) {
+      options.method = "patch";
+    } else {
+      options.method = "post";
+    }
   }
 
   options.headers = headers;

@@ -5,7 +5,10 @@ async function performRequest(requestOptions) {
   try {
     const { method, url, headers, data } = requestOptions;
 
-    if (data && headers["Content-Type"]?.toLowerCase()?.includes("application/json")) {
+    if (
+      data &&
+      headers["Content-Type"]?.toLowerCase()?.includes("application/json")
+    ) {
       headers["Content-Type"] = "application/json";
     } else if (data) {
       headers["Content-Type"] = "multipart/form-data";
@@ -28,7 +31,7 @@ async function performRequest(requestOptions) {
   } catch (error) {
     console.error("Error:", error);
     console.error("Error:", error?.response?.data);
-    //throw error;
+    throw error;
   }
 }
 
