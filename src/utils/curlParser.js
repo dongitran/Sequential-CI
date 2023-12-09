@@ -1,3 +1,5 @@
+const { isEmpty } = require("lodash");
+
 function parseCurlString(curlData) {
   const options = {};
   const headers = {};
@@ -36,7 +38,13 @@ function parseCurlString(curlData) {
     headers["Content-Type"] = "application/x-www-form-urlencoded";
   }
 
-  options.method = "post";
+  // Check method
+  if (isEmpty(options.data)) {
+    options.method = "get";
+  } else {
+    options.method = "post";
+  }
+
   options.headers = headers;
 
   return options;
