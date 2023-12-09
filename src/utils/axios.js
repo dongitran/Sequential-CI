@@ -1,4 +1,5 @@
 const axios = require("axios");
+const FormData = require("form-data");
 
 async function performRequest(requestOptions) {
   try {
@@ -25,7 +26,7 @@ async function performRequest(requestOptions) {
 
     return response.data;
   } catch (error) {
-    console.error("Error:", JSON.stringify(error));
+    console.error("Error:", error);
     //throw error;
   }
 }
