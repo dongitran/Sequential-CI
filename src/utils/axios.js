@@ -29,7 +29,7 @@ async function performRequest(requestOptions) {
 
     return response.data;
   } catch (error) {
-    //console.error("Error:", error);
+    console.error("Error:", error);
     console.error("Error:", error?.response?.data);
     throw error;
   }
