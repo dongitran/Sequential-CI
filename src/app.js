@@ -1,17 +1,22 @@
 const { get } = require("lodash");
 const { v4: uuidv4 } = require("uuid");
 const { Client } = require("pg");
+const express = require("express");
+const bodyParser = require('body-parser');
 const { parseCurlString } = require("./utils/curl-parser");
 const { performRequest } = require("./utils/axios");
 const { CONFIG } = require("../config");
 const { delayWithAsync } = require("./utils/common");
-const connectToLogMongo = require("./config/log");
+const processDataRoutes = require("./routes/process-data");
+const connectToMongo = require("./config/mongo");
+const app = express();
 
 async function test() {
   let parameters = {};
   try {
     parameters = {};
     let index = 0;
+    console.log(`Running: ${CONFIG.name}`);
     for (const processItem of CONFIG.process) {
       switch (processItem.name) {
         case "generate-data": {
@@ -120,7 +125,15 @@ async function test() {
 }
 
 async function startApp() {
-  await connectToLogMongo();
+  await connectToMongo();
+
+  app.listen(process.env.PORT, () => {
+    console.log(`Server running at http://localhost:${process.env.PORT}`);
+  });
+
+  app.use(bodyParser.json());
+
+  app.use("/api/process", processDataRoutes);
 
   await test();
 }
