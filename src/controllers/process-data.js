@@ -2,24 +2,24 @@ const { ProcessDataModel } = require("../models/process-data");
 
 exports.createData = async (req, res) => {
   try {
-    const { name, content } = req.body;
+    const { name, process } = req.body;
 
     // Validate data
-    if (!name || !content) {
-      return res.status(400).json({ message: "Dữ liệu không hợp lệ" });
+    if (!name || !process) {
+      return res.status(400).json({ message: "Data invalid" });
     }
 
     // Check name exist
     const existingData = await ProcessDataModel.findOne({ name });
     if (existingData) {
-      return res.status(400).json({ message: "Đã tồn tại process với tên này" });
+      return res.status(400).json({ message: "Process name exist" });
     }
 
     const newProcessData = new ProcessDataModel({
       createdAt: new Date(),
       updatedAt: new Date(),
       name,
-      content,
+      process,
     });
 
     const savedData = await newProcessData.save();
@@ -31,5 +31,33 @@ exports.createData = async (req, res) => {
     res
       .status(400)
       .json({ message: "Error creating data", error: error.message });
+  }
+};
+
+exports.updateDataByName = async (req, res) => {
+  try {
+    const { name, process } = req.body;
+
+    // Validate data
+    if (!name || !process) {
+      return res.status(400).json({ message: "Invalid data" });
+    }
+
+    // Find and update data by name
+    const updatedData = await ProcessDataModel.findOneAndUpdate(
+      { name },
+      { process, updatedAt: new Date() },
+      { new: true }
+    );
+
+    if (!updatedData) {
+      return res.status(404).json({ message: "No data found to update" });
+    }
+
+    res.json({ message: "Data updated successfully", data: updatedData });
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Error updating data", error: error.message });
   }
 };
