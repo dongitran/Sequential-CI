@@ -20,17 +20,11 @@ const cronJobProcess = async () => {
     for (const processValue of allProcessData) {
       parameters = {};
       console.log(`Running: ${processValue.name}`);
-      context = await telegramBot.appendMessageInDefaultGroup(
-        `--------------------------- \n🚁 Running process: ${processValue.name}\n`,
-        context
+      context = await telegramBot.appendMessageAndSend(
+        `--------------------------- \n🚁 Running: <b>${processValue.name}</b>\n`
       );
       try {
         for (const processItem of processValue.process) {
-          console.log(processItem, "a4adf");
-          context = await telegramBot.appendMessageInDefaultGroup(
-            `---> Running step: ${processItem.description}\n`,
-            context
-          );
           switch (processItem.name) {
             case PROCESS_NAME.GENERATE_DATA: {
               if (processItem?.parameters) {
@@ -60,8 +54,6 @@ const cronJobProcess = async () => {
               }
 
               const requestOptions = parseCurlString(updatedCurl);
-
-              index++;
 
               const result = await performRequest(requestOptions);
 
@@ -138,7 +130,11 @@ const cronJobProcess = async () => {
               break;
             }
           }
+          context = await telegramBot.appendMessage(
+            `✅ ${processItem.description}\n`
+          );
         }
+        await telegramBot.sendMessageCurrent();
       } catch (error) {
         console.log(error, "Error item");
       }
