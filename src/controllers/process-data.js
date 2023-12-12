@@ -2,7 +2,7 @@ const { ProcessDataModel } = require("../models/process-data");
 
 exports.createData = async (req, res) => {
   try {
-    const { name, process } = req.body;
+    const { name, process, status } = req.body;
 
     // Validate data
     if (!name || !process) {
@@ -20,6 +20,7 @@ exports.createData = async (req, res) => {
       updatedAt: new Date(),
       name,
       process,
+      status: status || "inactive",
     });
 
     const savedData = await newProcessData.save();
@@ -36,7 +37,7 @@ exports.createData = async (req, res) => {
 
 exports.updateDataByName = async (req, res) => {
   try {
-    const { name, process } = req.body;
+    const { name, process, status } = req.body;
 
     // Validate data
     if (!name || !process) {
@@ -46,7 +47,7 @@ exports.updateDataByName = async (req, res) => {
     // Find and update data by name
     const updatedData = await ProcessDataModel.findOneAndUpdate(
       { name },
-      { process, updatedAt: new Date() },
+      { process, ...(status && { status }), updatedAt: new Date() },
       { new: true }
     );
 

@@ -1,11 +1,11 @@
 const { Client } = require("pg");
 
 const client = new Client({
-  host: "0.0.0.0",
-  database: "sequentialci",
-  user: "sequentialci",
-  password: "sequentialci",
-  port: 5432,
+  host: process.env.POSTGRES_HOST,
+  database: process.env.POSTGRES_DB,
+  user: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PWD,
+  port: process.env.POSTGRES_PORT,
 });
 
 async function connectDB() {

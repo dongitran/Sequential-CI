@@ -3,6 +3,7 @@ const { Schema, model } = require("mongoose");
 const ProcessData = new Schema({
   createdAt: Date,
   updatedAt: Date,
+  status: String,
   name: String,
   process: Schema.Types.Mixed,
 });
