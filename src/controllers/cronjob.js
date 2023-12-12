@@ -9,28 +9,26 @@ const { performRequest } = require("../utils/axios");
 const telegramBot = require("./telegram-bot");
 
 const cronJobProcess = async () => {
-  console.log("cronJobProcess");
   try {
     const allProcessData = await ProcessDataModel.find({
       status: PROCESS_STATUS.ACTIVE,
     });
 
     let context = await telegramBot.sendMessageToDefaultGroup(
-      "🛸 <b>Start running all process</b>"
+      "🛸 <b>Start running all process</b>\n"
     );
-    console.log(context, "context");
     for (const processValue of allProcessData) {
       parameters = {};
       console.log(`Running: ${processValue.name}`);
       context = await telegramBot.appendMessageInDefaultGroup(
-        `🚁 Running process: ${processValue.name}`,
+        `--------------------------- \n🚁 Running process: ${processValue.name}\n`,
         context
       );
       try {
         for (const processItem of processValue.process) {
           console.log(processItem, "a4adf");
           context = await telegramBot.appendMessageInDefaultGroup(
-            `🚁 Running step: ${processItem.description}`,
+            `---> Running step: ${processItem.description}\n`,
             context
           );
           switch (processItem.name) {

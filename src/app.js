@@ -19,6 +19,7 @@ async function startApp() {
 
   // Init telegram bot
   telegramBot.init();
+
   //  await test();
   await cronJobProcess();
 }

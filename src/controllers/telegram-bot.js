@@ -3,14 +3,16 @@ const { Telegraf } = require("telegraf");
 
 // Define bot
 let bot;
+let messageCurrent = "";
 
 function init() {
   bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
   bot.start((ctx) => ctx.reply("Hello, I'm sequential ci bot~"));
-  bot.launch();
+  return bot.launch();
 }
 
 async function sendMessageToDefaultGroup(message) {
+  messageCurrent = message;
   try {
     return await bot.telegram.sendMessage(
       process.env.TELEGRAM_GROUP_ID,
@@ -37,14 +39,18 @@ async function editMessageInDefaultGroup(message, context) {
 }
 
 async function appendMessageInDefaultGroup(message, context) {
+  messageCurrent += message;
   try {
-    return await bot.telegram.editMessageText(
+    const t = await bot.telegram.editMessageText(
       process.env.TELEGRAM_GROUP_ID,
       context.message_id,
       null,
-      context.text + '\n' + message,
-      { parse_mode: "HTML" }
+      messageCurrent,
+      {
+        parse_mode: "HTML",
+      }
     );
+    return t;
   } catch (error) {}
 }
 
