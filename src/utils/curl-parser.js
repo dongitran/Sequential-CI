@@ -4,6 +4,8 @@ function parseCurlString(curlData) {
   const options = {};
   const headers = {};
   curlData = curlData.replace(/\n/g, "");
+  // Update --data-raw to --data
+  curlData = curlData.replace(/--data-raw/g, "--data");
 
   const urlMatches = curlData.match(/'([^']+)'/);
   if (urlMatches) {
@@ -31,7 +33,7 @@ function parseCurlString(curlData) {
       const [, key, value] = match;
       const trimmedKey = key.trim();
       const trimmedValue = value.trim();
-      formData[trimmedKey] = trimmedValue.replace(/"/g, "");
+      formData[trimmedKey] = trimmedValue.substring(1, trimmedValue.length - 1);
     }
 
     options.data = formData;
