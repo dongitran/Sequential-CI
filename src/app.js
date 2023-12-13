@@ -5,6 +5,7 @@ const connectToMongo = require("./config/mongo");
 const { cronJobProcess } = require("./controllers/cronjob");
 const telegramBot = require("./controllers/telegram-bot");
 const app = express();
+const cron = require("node-cron");
 
 async function startApp() {
   await connectToMongo();
@@ -21,7 +22,9 @@ async function startApp() {
   telegramBot.init();
 
   //  await test();
-  await cronJobProcess();
+  cron.schedule("* * * * *", async () => {
+    await cronJobProcess();
+  });
 }
 
 module.exports = { startApp };
