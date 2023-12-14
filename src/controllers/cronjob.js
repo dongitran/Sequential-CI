@@ -19,15 +19,23 @@ const cronJobProcess = async () => {
     let context = await telegramBot.sendMessageToDefaultGroup(
       "🛸 <b>Start running all process</b>\n"
     );
+
+    const idIntervalSendMessage = setInterval(async () => {
+      await telegramBot.sendMessageCurrent(true);
+    }, 500);
     for (const processValue of allProcessData) {
       parameters = {};
       console.log(`Running: ${processValue.name}`);
       context = await telegramBot.appendMessageAndSend(
         `--------------------------- \n🚁 Running: <b>${processValue.name}</b>\n`
       );
+
       try {
         for (const processItem of processValue.process) {
           try {
+            context = await telegramBot.appendMessage(
+              `✅ ${processItem.description}\n`
+            );
             switch (processItem.name) {
               case PROCESS_NAME.GENERATE_DATA: {
                 if (processItem?.parameters) {
@@ -154,17 +162,12 @@ const cronJobProcess = async () => {
                 const { error, value } = schema.validate(
                   parameters[processItem["variable"]]
                 );
-                console.log(error, "errorerror");
                 if (error) {
                   throw error;
                 }
                 break;
               }
             }
-
-            context = await telegramBot.appendMessage(
-              `✅ ${processItem.description}\n`
-            );
           } catch (error) {
             context = await telegramBot.appendMessage(
               `❌ ${processItem.description}: ${
@@ -179,8 +182,9 @@ const cronJobProcess = async () => {
         console.log(error, "Error item");
         await telegramBot.sendMessageCurrent();
       }
-      // console.log(JSON.stringify(parameters), "parameters");
+      console.log(JSON.stringify(parameters), "parameters");
     }
+    clearInterval(idIntervalSendMessage);
   } catch (error) {
     console.log(error, "Error process");
   }
