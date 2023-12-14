@@ -95,15 +95,24 @@ const cronJobProcess = async () => {
                   password: processItem.config.password,
                   port: processItem.config.port,
                 });
-                await client.connect();
-
-                let query = processItem.query;
-                Object.keys(parameters).forEach((key) => {
-                  const regex = new RegExp(`{parameters\\['${key}']}`, "g");
-                  query = query.replace(regex, parameters[key]);
-                });
-                const result = (await client.query(query)).rows[0];
-                await client.end();
+                let isConnected = false;
+                let result;
+                try {
+                  await client.connect();
+                  isConnected = true;
+                  let query = processItem.query;
+                  Object.keys(parameters).forEach((key) => {
+                    const regex = new RegExp(`{parameters\\['${key}']}`, "g");
+                    query = query.replace(regex, parameters[key]);
+                  });
+                  result = (await client.query(query)).rows[0];
+                } catch (error) {
+                  throw error;
+                } finally {
+                  if (isConnected) {
+                    await client.end();
+                  }
+                }
 
                 if (processItem?.parameters) {
                   for (const parameterKey of Object.keys(
@@ -143,7 +152,7 @@ const cronJobProcess = async () => {
                 const schema = Joi.object().keys(schemaObject);
 
                 const { error, value } = schema.validate(
-                  parameters["topupRequest"]
+                  parameters[processItem["variable"]]
                 );
                 console.log(error, "errorerror");
                 if (error) {
@@ -162,13 +171,15 @@ const cronJobProcess = async () => {
                 error?.message || JSON.stringify(parse(stringify(error)))
               }\n`
             );
+            throw error;
           }
         }
         await telegramBot.sendMessageCurrent();
       } catch (error) {
         console.log(error, "Error item");
+        await telegramBot.sendMessageCurrent();
       }
-      console.log(parameters, "parameters");
+      // console.log(JSON.stringify(parameters), "parameters");
     }
   } catch (error) {
     console.log(error, "Error process");
