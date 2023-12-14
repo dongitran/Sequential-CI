@@ -23,8 +23,9 @@ async function startApp() {
 
   //  await test();
   cron.schedule("* * * * *", async () => {
-    await cronJobProcess();
+    //await cronJobProcess();
   });
+  await cronJobProcess();
 }
 
 module.exports = { startApp };

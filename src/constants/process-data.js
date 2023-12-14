@@ -3,6 +3,7 @@ const PROCESS_NAME = {
   DELAY: "delay",
   API: "api",
   POSTGRES: "postgres",
+  VALIDATE_JSON: "validateJson",
 };
 
 const PROCESS_STATUS = {
