@@ -11,7 +11,24 @@ let messageUpdated = false;
 function init() {
   bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
   bot.start((ctx) => ctx.reply("Hello, I'm sequential ci bot~"));
-  return bot.launch();
+
+  bot.on("message", async (ctx) => {
+    // Check not response if using from other group
+    if (
+      String(ctx?.update?.message?.chat?.id) !== process.env.TELEGRAM_GROUP_ID
+    ) {
+      return;
+    }
+
+    const msg = ctx?.update?.message?.text;
+    await ctx.replyWithHTML(msg);
+    
+    console.log(ctx);
+  });
+
+  bot.launch();
+
+  return bot;
 }
 
 async function sendMessageToDefaultGroup(message) {
