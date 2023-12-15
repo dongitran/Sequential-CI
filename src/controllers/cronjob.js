@@ -83,6 +83,7 @@ const runProcessItem = async (processItem, parameters) => {
         }
 
         const requestOptions = parseCurlString(updatedCurl);
+        console.log(requestOptions, "requestOptions");
 
         const result = await performRequest(requestOptions);
 

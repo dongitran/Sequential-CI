@@ -41,7 +41,7 @@ function parseCurlString(curlData) {
   }
 
   // Check method
-  if (isEmpty(options.data) && !curlData.includes('--data')) {
+  if (isEmpty(options.data) && !curlData.includes("--data")) {
     options.method = "get";
   } else {
     if (curlData.toLowerCase().includes("patch")) {

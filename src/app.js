@@ -7,6 +7,7 @@ const telegramBot = require("./controllers/telegram-bot");
 const app = express();
 const cron = require("node-cron");
 const { ProcessDataModel } = require("./models/process-data");
+const { default: mongoose } = require("mongoose");
 
 async function startApp() {
   await connectToMongo();
