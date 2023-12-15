@@ -22,6 +22,7 @@ async function startApp() {
   // Init telegram bot
   const bot = await telegramBot.init();
   bot.on("message", async (ctx) => {
+    console.log(ctx?.update?.message?.chat?.id, "ctxctx");
     // Check not response if using from other group
     if (
       String(ctx?.update?.message?.chat?.id) !== process.env.TELEGRAM_GROUP_ID
@@ -37,7 +38,9 @@ async function startApp() {
       const allProcessData = await ProcessDataModel.find({});
       const processNames = allProcessData.map((item) => item.name);
       const emoji = "⚙️";
-      const replyMessage = processNames.map((name) => emoji + " " + name).join("\n");
+      const replyMessage = processNames
+        .map((name) => emoji + " " + name)
+        .join("\n");
       await ctx.replyWithHTML(replyMessage);
     } else if (msg?.substring(0, 5) === "/help") {
       const emojiList = "📊";
@@ -47,8 +50,10 @@ async function startApp() {
       const listCommand = `${emojiList} <b>/list:</b> Display all available processes\n`;
       const runCommand = `${emojiRun} <b>/run:{process}</b> Run a specific process\n`;
       const helpCommand = `${emojiHelp} <b>/help:</b> Show available commands and their usage\n`;
-    
-      await ctx.replyWithHTML(replyMessage + listCommand + runCommand + helpCommand);
+
+      await ctx.replyWithHTML(
+        replyMessage + listCommand + runCommand + helpCommand
+      );
     }
   });
 

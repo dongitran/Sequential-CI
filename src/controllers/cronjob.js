@@ -54,7 +54,13 @@ const runProcessItem = async (processItem, parameters) => {
       case PROCESS_NAME.GENERATE_DATA: {
         if (processItem?.parameters) {
           for (const parameterKey of Object.keys(processItem.parameters)) {
-            const value = eval(processItem.parameters[parameterKey]);
+            let commandString = processItem.parameters[parameterKey];
+            Object.keys(parameters).forEach((key) => {
+              const regex = new RegExp(`{parameters\\['${key}']}`, "g");
+              commandString = commandString.replace(regex, parameters[key]);
+            });
+
+            const value = eval(commandString);
 
             parameters[parameterKey] = value;
           }
@@ -221,7 +227,7 @@ const runProcessWithName = async (name) => {
     console.log(JSON.stringify(parameters), "parameters");
     clearInterval(idIntervalSendMessage);
 
-    await telegramBot.appendMessageAndSend('<b>Successful</b>');
+    await telegramBot.appendMessageAndSend("<b>Successful</b>");
   }
 };
 
