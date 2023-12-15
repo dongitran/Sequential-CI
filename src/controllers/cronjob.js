@@ -189,7 +189,7 @@ const runProcessItem = async (processItem, parameters) => {
 const runProcessWithName = async (name) => {
   const processValue = await ProcessDataModel.findOne({
     name,
-    status: PROCESS_STATUS.ACTIVE,
+    //status: PROCESS_STATUS.ACTIVE,
   });
   console.log(
     {
@@ -220,6 +220,8 @@ const runProcessWithName = async (name) => {
     }
     console.log(JSON.stringify(parameters), "parameters");
     clearInterval(idIntervalSendMessage);
+
+    await telegramBot.appendMessageAndSend('<b>Successful</b>');
   }
 };
 

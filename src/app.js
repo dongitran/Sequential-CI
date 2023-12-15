@@ -31,15 +31,15 @@ async function startApp() {
 
     // Check command run process
     const msg = ctx?.update?.message?.text;
-    if (msg.substring(0, 5) == "/run:") {
-      await runProcessWithName(msg.substring(5));
-    } else if (msg.substring(0, 5) === "/list") {
+    if (msg?.substring(0, 5) == "/run:") {
+      await runProcessWithName(msg?.substring(5));
+    } else if (msg?.substring(0, 5) === "/list") {
       const allProcessData = await ProcessDataModel.find({});
       const processNames = allProcessData.map((item) => item.name);
       const emoji = "⚙️";
       const replyMessage = processNames.map((name) => emoji + " " + name).join("\n");
       await ctx.replyWithHTML(replyMessage);
-    } else if (msg.substring(0, 5) === "/help") {
+    } else if (msg?.substring(0, 5) === "/help") {
       const emojiList = "📊";
       const emojiRun = "🚀";
       const emojiHelp = "👽";
