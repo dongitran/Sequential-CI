@@ -1,3 +1,5 @@
+require("dotenv").config();
+const connectToMongo = require("../config/mongo");
 const { ProcessDataModel } = require("../models/process-data");
 
 exports.createData = async (req, res) => {
@@ -10,12 +12,13 @@ exports.createData = async (req, res) => {
     }
 
     // Check name exist
-    const existingData = await ProcessDataModel.findOne({ name });
+    const processDataModel = ProcessDataModel(process.env.MONGO_URI);
+    const existingData = await processDataModel.findOne({ name });
     if (existingData) {
       return res.status(400).json({ message: "Process name exist" });
     }
 
-    const newProcessData = new ProcessDataModel({
+    const newProcessData = new processDataModel({
       createdAt: new Date(),
       updatedAt: new Date(),
       name,
@@ -37,17 +40,23 @@ exports.createData = async (req, res) => {
 
 exports.updateDataByName = async (req, res) => {
   try {
-    const { name, process, status } = req.body;
+    const { name, status } = req.body;
 
     // Validate data
-    if (!name || !process) {
+    if (!name || !req.body.process) {
       return res.status(400).json({ message: "Invalid data" });
     }
 
     // Find and update data by name
-    const updatedData = await ProcessDataModel.findOneAndUpdate(
+    const connection = await connectToMongo(process.env.MONGO_URI);
+    const processDataModel = ProcessDataModel(connection);
+    const updatedData = await processDataModel.findOneAndUpdate(
       { name },
-      { process, ...(status && { status }), updatedAt: new Date() },
+      {
+        process: req.body.process,
+        ...(status && { status }),
+        updatedAt: new Date(),
+      },
       { new: true }
     );
 
@@ -57,6 +66,7 @@ exports.updateDataByName = async (req, res) => {
 
     res.json({ message: "Data updated successfully", data: updatedData });
   } catch (error) {
+    console.log(error, "Update data error");
     res
       .status(400)
       .json({ message: "Error updating data", error: error.message });

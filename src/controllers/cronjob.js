@@ -9,10 +9,12 @@ const { performRequest } = require("../utils/axios");
 const telegramBot = require("./telegram-bot");
 const Joi = require("joi");
 const { parse, stringify } = require("flatted");
+const connectToMongo = require("../config/mongo");
 
-const cronJobProcess = async () => {
+const cronJobProcess = async (connection) => {
   try {
-    const allProcessData = await ProcessDataModel.find({
+    const processDataModel = ProcessDataModel(connection);
+    const allProcessData = await processDataModel.find({
       status: PROCESS_STATUS.ACTIVE,
     });
 
@@ -83,7 +85,6 @@ const runProcessItem = async (processItem, parameters) => {
         }
 
         const requestOptions = parseCurlString(updatedCurl);
-        console.log(requestOptions, "requestOptions");
 
         const result = await performRequest(requestOptions);
 
@@ -162,6 +163,50 @@ const runProcessItem = async (processItem, parameters) => {
         }
         break;
       }
+      case PROCESS_NAME.MONGO: {
+        try {
+          let query = processItem.query;
+          Object.keys(parameters).forEach((key) => {
+            const regex = new RegExp(`{parameters\\['${key}']}`, "g");
+            query = query.replace(regex, parameters[key]);
+          });
+
+          const connection = await connectToMongo(processItem?.connectString);
+
+          const collection = connection.collection(processItem?.collection);
+
+          const result = await collection.findOne(JSON.parse(query));
+
+          if (processItem?.parameters) {
+            for (const parameterKey of Object.keys(processItem.parameters)) {
+              if (!processItem.parameters[parameterKey]) {
+                parameters[parameterKey] = result;
+              } else {
+                if (processItem.parameters[parameterKey][0] != "#") {
+                  parameters[parameterKey] = get(
+                    result,
+                    processItem.parameters[parameterKey]
+                  );
+                } else {
+                  const listKey =
+                    processItem.parameters[parameterKey].split("#");
+                  let tmp = get(result, listKey[1]);
+
+                  const command = listKey[2].replace("{tmp}", tmp);
+                  const value = eval(command);
+
+                  parameters[parameterKey] = value;
+                }
+              }
+            }
+          }
+        } catch (error) {
+          throw error;
+        } finally {
+        }
+
+        break;
+      }
       case PROCESS_NAME.VALIDATE_JSON: {
         const schemaString = processItem.content;
 
@@ -193,19 +238,13 @@ const runProcessItem = async (processItem, parameters) => {
   return parameters;
 };
 
-const runProcessWithName = async (name) => {
-  const processValue = await ProcessDataModel.findOne({
+const runProcessWithName = async (name, connection) => {
+  const ProcessDataModelWithConnection = ProcessDataModel(connection);
+  const processValue = await ProcessDataModelWithConnection.findOne({
     name,
     //status: PROCESS_STATUS.ACTIVE,
   });
-  console.log(
-    {
-      name,
-      status: PROCESS_STATUS.ACTIVE,
-    },
-    "49jadsf"
-  );
-  console.log(processValue);
+
   if (processValue) {
     parameters = {};
     console.log(`Running: ${processValue.name}`);
@@ -228,7 +267,9 @@ const runProcessWithName = async (name) => {
     console.log(JSON.stringify(parameters), "parameters");
     clearInterval(idIntervalSendMessage);
 
-    await telegramBot.appendMessageAndSend("<b>Successful</b>");
+    setTimeout(async () => {
+      await telegramBot.appendMessageAndSend("<b>Successful</b>");
+    }, 250);
   }
 };
 

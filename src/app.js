@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const processDataRoutes = require("./routes/process-data");
@@ -7,10 +8,9 @@ const telegramBot = require("./controllers/telegram-bot");
 const app = express();
 const cron = require("node-cron");
 const { ProcessDataModel } = require("./models/process-data");
-const { default: mongoose } = require("mongoose");
 
 async function startApp() {
-  await connectToMongo();
+  const connection = await connectToMongo(process.env.MONGO_URI);
 
   app.listen(process.env.PORT, () => {
     console.log(`Server running at http://localhost:${process.env.PORT}`);
@@ -24,19 +24,13 @@ async function startApp() {
   const bot = await telegramBot.init();
   bot.on("message", async (ctx) => {
     console.log(ctx?.update?.message?.chat?.id, "ctxctx");
-    // Check not response if using from other group
-    if (
-      String(ctx?.update?.message?.chat?.id) !== process.env.TELEGRAM_GROUP_ID
-    ) {
-      return;
-    }
-
+    const ProcessDataModelWithConnection = ProcessDataModel(connection);
     // Check command run process
     const msg = ctx?.update?.message?.text;
     if (msg?.substring(0, 5) == "/run:") {
-      await runProcessWithName(msg?.substring(5));
+      await runProcessWithName(msg?.substring(5), connection);
     } else if (msg?.substring(0, 5) === "/list") {
-      const allProcessData = await ProcessDataModel.find({});
+      const allProcessData = await ProcessDataModelWithConnection.find({});
       const processNames = allProcessData.map((item) => item.name);
       const emoji = "⚙️";
       const replyMessage = processNames
@@ -59,8 +53,8 @@ async function startApp() {
   });
 
   //  await test();
-  cron.schedule("* * * * *", async () => {
-    //await cronJobProcess();
+  cron.schedule("*/2 * * * *", async () => {
+    await cronJobProcess(connection);
   });
 }
 

@@ -3,6 +3,7 @@ const PROCESS_NAME = {
   DELAY: "delay",
   API: "api",
   POSTGRES: "postgres",
+  MONGO: "mongo",
   VALIDATE_JSON: "validateJson",
 };
 

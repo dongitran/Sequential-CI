@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema } = require("mongoose");
 
 const ProcessData = new Schema({
   createdAt: Date,
@@ -8,6 +8,8 @@ const ProcessData = new Schema({
   process: Schema.Types.Mixed,
 });
 
-const ProcessDataModel = model("sequential_ci_process_datas", ProcessData);
+const ProcessDataModel = (connection) => {
+  return connection.model("sequential_ci_process_datas", ProcessData);
+};
 
 module.exports = { ProcessData, ProcessDataModel };

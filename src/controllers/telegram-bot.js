@@ -63,6 +63,7 @@ async function sendMessageCurrent(checkTime) {
   if (!messageUpdated) {
     return;
   }
+  messageUpdated = false;
 
   // Check time to prevent send multiple request in times
   if (checkTime) {
@@ -83,7 +84,6 @@ async function sendMessageCurrent(checkTime) {
       }
     );
 
-    messageUpdated = false;
     return t;
   } catch (error) {
     console.log("send message current error: ", error);
