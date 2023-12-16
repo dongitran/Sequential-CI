@@ -53,7 +53,7 @@ async function startApp() {
   });
 
   //  await test();
-  cron.schedule("*/2 * * * *", async () => {
+  cron.schedule("*/15 * * * *", async () => {
     await cronJobProcess(connection);
   });
 }

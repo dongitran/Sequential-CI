@@ -208,7 +208,12 @@ const runProcessItem = async (processItem, parameters) => {
         break;
       }
       case PROCESS_NAME.VALIDATE_JSON: {
-        const schemaString = processItem.content;
+        let schemaString = JSON.stringify(processItem.content);
+        Object.keys(parameters).forEach((key) => {
+          const regex = new RegExp(`{parameters\\['${key}']}`, "g");
+          schemaString = schemaString.replace(regex, parameters[key]);
+        });
+        schemaString = JSON.parse(schemaString);
 
         const schemaObject = {};
         for (const [key, value] of Object.entries(schemaString)) {
@@ -218,7 +223,8 @@ const runProcessItem = async (processItem, parameters) => {
         const schema = Joi.object().keys(schemaObject);
 
         const { error, value } = schema.validate(
-          parameters[processItem["variable"]]
+          parameters[processItem["variable"]],
+          { allowUnknown: true }
         );
         if (error) {
           throw error;
