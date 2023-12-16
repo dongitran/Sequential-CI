@@ -1,6 +1,7 @@
 const { get } = require("lodash");
 const { v4: uuidv4 } = require("uuid");
 const { Client } = require("pg");
+const mysql = require("mysql2/promise");
 const { PROCESS_STATUS, PROCESS_NAME } = require("../constants/process-data");
 const { ProcessDataModel } = require("../models/process-data");
 const { delayWithAsync } = require("../utils/common");
@@ -163,6 +164,59 @@ const runProcessItem = async (processItem, parameters) => {
         }
         break;
       }
+      case PROCESS_NAME.MYSQL: {
+        let isConnected = false;
+        let result;
+        let connection;
+        try {
+          let query = processItem.query;
+          Object.keys(parameters).forEach((key) => {
+            const regex = new RegExp(`{parameters\\['${key}']}`, "g");
+            query = query.replace(regex, parameters[key]);
+          });
+
+          connection = await mysql.createConnection({
+            host: processItem.config.host,
+            database: processItem.config.db,
+            user: processItem.config.username,
+            password: processItem.config.password,
+            port: processItem.config.port,
+          });
+          isConnected = true;
+
+          const [rows, fields] = await connection.execute(query);
+        } catch (error) {
+          throw error;
+        } finally {
+          if (isConnected) {
+            connection.end();
+          }
+        }
+
+        if (processItem?.parameters) {
+          for (const parameterKey of Object.keys(processItem.parameters)) {
+            if (!processItem.parameters[parameterKey]) {
+              parameters[parameterKey] = result;
+            } else {
+              if (processItem.parameters[parameterKey][0] != "#") {
+                parameters[parameterKey] = get(
+                  result,
+                  processItem.parameters[parameterKey]
+                );
+              } else {
+                const listKey = processItem.parameters[parameterKey].split("#");
+                let tmp = get(result, listKey[1]);
+
+                const command = listKey[2].replace("{tmp}", tmp);
+                const value = eval(command);
+
+                parameters[parameterKey] = value;
+              }
+            }
+          }
+        }
+        break;
+      }
       case PROCESS_NAME.MONGO: {
         try {
           let query = processItem.query;
@@ -265,7 +319,7 @@ const runProcessWithName = async (name, connection) => {
       for (const processItem of processValue.process) {
         parameters = await runProcessItem(processItem, parameters);
       }
-      await telegramBot.sendMessageCurrent();
+      //await telegramBot.sendMessageCurrent();
     } catch (error) {
       console.log(error, "Error item");
       await telegramBot.sendMessageCurrent();

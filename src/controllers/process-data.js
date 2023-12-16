@@ -4,15 +4,16 @@ const { ProcessDataModel } = require("../models/process-data");
 
 exports.createData = async (req, res) => {
   try {
-    const { name, process, status } = req.body;
+    const { name, status } = req.body;
 
     // Validate data
-    if (!name || !process) {
+    if (!name || !req.body.process) {
       return res.status(400).json({ message: "Data invalid" });
     }
 
     // Check name exist
-    const processDataModel = ProcessDataModel(process.env.MONGO_URI);
+    const connection = await connectToMongo(process.env.MONGO_URI);
+    const processDataModel = ProcessDataModel(connection);
     const existingData = await processDataModel.findOne({ name });
     if (existingData) {
       return res.status(400).json({ message: "Process name exist" });
@@ -22,7 +23,7 @@ exports.createData = async (req, res) => {
       createdAt: new Date(),
       updatedAt: new Date(),
       name,
-      process,
+      process: req.body.process,
       status: status || "inactive",
     });
 
