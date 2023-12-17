@@ -27,7 +27,7 @@ async function startApp() {
     const ProcessDataModelWithConnection = ProcessDataModel(connection);
     // Check command run process
     const msg = ctx?.update?.message?.text;
-    if (msg.trim() === "/runall") {
+    if (msg?.trim() === "/runall") {
       cronJobProcess(connection);
     } else if (msg?.substring(0, 5) == "/run:") {
       runProcessWithName(msg?.substring(5).trim(), connection);

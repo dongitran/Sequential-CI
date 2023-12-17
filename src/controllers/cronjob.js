@@ -289,7 +289,9 @@ const runProcessItem = async (processItem, parameters) => {
   } catch (error) {
     await telegramBot.appendMessage(
       `❌ ${processItem.description}: ${
-        error?.message || JSON.stringify(parse(stringify(error)))
+        error?.response?.data?.message ||
+        error?.message ||
+        JSON.stringify(parse(stringify(error)))
       }\n`
     );
     throw error;
