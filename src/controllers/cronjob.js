@@ -291,7 +291,7 @@ const runProcessItem = async (processItem, parameters) => {
       `❌ ${processItem.description}: ${
         error?.response?.data?.message ||
         error?.message ||
-        JSON.stringify(parse(stringify(error)))
+        JSON.stringify(parse(stringify(error))).replace(/<([^<>]+)>/g, '"$1"')
       }\n`
     );
     throw error;
