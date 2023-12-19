@@ -276,6 +276,7 @@ const runProcessItem = async (processItem, parameters) => {
 
         const schema = Joi.object().keys(schemaObject);
 
+        // TODO: check if value received is undefined
         const { error, value } = schema.validate(
           parameters[processItem["variable"]],
           { allowUnknown: true }
