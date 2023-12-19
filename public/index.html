@@ -1,153 +1,88 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>Ant Design Steps Example</title>
-  <!-- Link tới file CSS của Ant Design -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/antd/4.17.0/antd.min.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f0f2f5;
-    }
-
-    #app {
-      width: 90%;
-      margin: 50px auto;
-    }
-
-    .steps-container {
-      display: grid;
-      grid-template-columns: 30% 70%;
-      background-color: #fff;
-      border-radius: 5px;
-      overflow: hidden;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .steps-list {
-      padding: 20px;
-      background-color: #fafafa;
-      border-right: 1px solid #e8e8e8;
-      overflow-y: auto;
-    }
-
-    .steps-list h2 {
-      margin-bottom: 20px;
-    }
-
-    .step-item {
-      display: flex;
-      align-items: center;
-      padding: 10px;
-      border-radius: 3px;
-      transition: background-color 0.3s;
-    }
-
-    .step-icon {
-      width: 20px;
-      height: 20px;
-      margin-right: 10px;
-    }
-
-    .step-title {
-      margin: 0;
-    }
-
-    .step-item:hover {
-      background-color: #e6f7ff;
-    }
-
-    .selected {
-      background-color: #1890ff !important;
-      color: #fff;
-    }
-
-    .data-json {
-      padding: 20px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    .data-json h2 {
-      margin-bottom: 20px;
-    }
-
-    /* CSS cho phần JSON Viewer */
-    #json-viewer {
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin: 20px;
-    }
-  </style>
-</head>
-<body>
-  <div id="app">
-    <div class="steps-container">
-      <div class="steps-list" id="steps">
-        <h2>Steps</h2>
-      </div>
-      <div class="data-json" id="jsonData">
-        <div id="json-viewer"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Link tới file JavaScript của Ant Design -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/antd/4.17.0/antd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@textea/json-viewer@3"></script>
-  <script>
-    // Tạo dữ liệu mẫu cho các bước
-    const stepsData = Array.from({ length: 12 }, (_, index) => ({
-      title: `Step ${index + 1}`,
-      content: `Content of step ${index + 1}`,
-      status: index % 2 === 0 ? 'success' : 'failure', // Tạo trạng thái ngẫu nhiên cho các bước
-    }));
-
-    const stepsDiv = document.getElementById('steps');
-    const jsonViewerDiv = document.getElementById('json-viewer');
-
-    let selectedStepIndex = null;
-
-    stepsData.forEach((step, index) => {
-      const stepDiv = document.createElement('div');
-      stepDiv.classList.add('step-item');
-      const iconClass = step.status === 'success' ? 'success-icon' : 'failure-icon';
-      stepDiv.innerHTML = `
-        <div class="step-icon ${iconClass}">
-          ${step.status === 'success' ? '✔' : '❌'}
-        </div>
-        <div class="step-title">${step.title}</div>
-      `;
-      stepDiv.onclick = () => displayData(index); // Gán sự kiện click cho mỗi bước
-      stepsDiv.appendChild(stepDiv);
-    });
-
-    function displayData(index) {
-      const selectedStep = stepsData[index];
-
-      // Xóa lớp 'selected' khỏi bước trước đó (nếu có)
-      if (selectedStepIndex !== null) {
-        stepsDiv.children[selectedStepIndex + 1].classList.remove('selected');
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Interactive Steps with JSON Viewer - antd@5.12.4</title>
+    <style>
+      /* Add your styles here */
+      .steps-container {
+        display: flex;
       }
+      .steps {
+        width: 200px;
+        margin-right: 20px;
+      }
+      .json-viewer {
+        flex: 1;
+        border: 1px solid #ccc;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="steps-container">
+      <div class="steps" id="steps"></div>
+      <div class="json-viewer" id="json-viewer">JSON data will display here</div>
+    </div>
 
-      // Thêm lớp 'selected' cho bước mới
-      stepsDiv.children[index + 1].classList.add('selected');
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+    <script src="https://unpkg.com/antd@5.12.4/dist/antd-with-locales.min.js"></script>
+    <script src="https://unpkg.com/@ant-design/icons/dist/index.umd.js"></script>
+    <script src="https://unpkg.com/react-router-dom/dist/umd/react-router-dom.production.min.js"></script>
+    <script src="https://unpkg.com/react-router/dist/umd/react-router.production.min.js"></script>
 
-      // Lưu index của bước được chọn
-      selectedStepIndex = index;
+    <script>
+      const { createRoot } = ReactDOM;
+      const { Steps } = antd;
+      const { useState } = React;
 
-      // Hiển thị JSON sử dụng JSON Viewer
-      renderJSON(selectedStep);
-    }
+      const stepsData = [
+        {
+          title: 'Finished',
+          description: 'This is a description for Finished step.',
+          data: { sampleData: 'Finished step data' },
+        },
+        {
+          title: 'In Progress',
+          description: 'This is a description for In Progress step.',
+          data: { sampleData: 'In Progress step data' },
+        },
+        {
+          title: 'Waiting',
+          description: 'This is a description for Waiting step.',
+          data: { sampleData: 'Waiting step data' },
+        },
+      ];
 
-    function renderJSON(data) {
-      jsonViewerDiv.innerHTML = '';
-      new JsonViewer({
-        value: data
-      }).render('#json-viewer');
-    }
-  </script>
-</body>
+      const App = () => {
+        const [currentStep, setCurrentStep] = useState(0);
+
+        const handleStepClick = (stepIndex) => {
+          setCurrentStep(stepIndex);
+          const jsonViewer = document.getElementById('json-viewer');
+          jsonViewer.textContent = JSON.stringify(stepsData[stepIndex].data, null, 2);
+        };
+
+        return React.createElement(
+          Steps,
+          {
+            direction: 'vertical',
+            size: 'small',
+            current: currentStep,
+            items: stepsData.map((step, index) => ({
+              title: step.title,
+              description: step.description,
+              onClick: () => handleStepClick(index),
+            })),
+          },
+          null
+        );
+      };
+
+      const mountNode = document.getElementById('steps');
+      createRoot(mountNode).render(React.createElement(App));
+    </script>
+  </body>
 </html>
