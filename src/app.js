@@ -16,6 +16,15 @@ async function startApp() {
     console.log(`Server running at http://localhost:${process.env.PORT}`);
   });
 
+  app.use(express.static("public"));
+  app.get("/api/data", async (req, res) => {
+    try {
+      res.json({});
+    } catch (error) {
+      res.status(404).json({ error: "Không thể lấy dữ liệu từ API" });
+    }
+  });
+
   app.use(bodyParser.json());
 
   app.use("/api/process", processDataRoutes);
