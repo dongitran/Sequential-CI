@@ -4,12 +4,25 @@
     <meta charset="UTF-8" />
     <title>Interactive Steps with JSON Viewer - antd@5.12.4</title>
     <style>
+      body {
+        background-color: #343541;
+      }
+      .main-title {
+        font-size: 2em;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .test {
+        color: "red";
+      }
       .steps-container {
         display: flex;
-        padding: 90px;
+        padding: 40px 90px;
+        margin-bottom: 20px;
       }
       .steps {
-        width: 200px;
+        width: 300px;
         margin-right: 20px;
       }
       .json-viewer {
@@ -20,6 +33,7 @@
     </style>
   </head>
   <body>
+    <div class="main-title" id="title"></div>
     <div class="steps-container">
       <div class="steps" id="steps"></div>
       <div class="json-viewer" id="json-viewer"></div>
@@ -60,6 +74,9 @@
               return response.json();
             })
             .then((jsonData) => {
+              document.getElementById("title").textContent =
+                jsonData[0].processName;
+
               const jsonViewer = document.getElementById("json-viewer");
               let stepsDataTmp = jsonData[0].process.map((item) => {
                 return {
@@ -68,6 +85,8 @@
                   data: item?.result,
                 };
               });
+
+              handleStepClick(stepsDataTmp, 0);
               setStepsData(stepsDataTmp);
             })
             .catch((error) => {
@@ -78,15 +97,17 @@
             });
         }, []);
 
-        const handleStepClick = (stepIndex) => {
-          setCurrentStep(stepIndex);
+        const handleStepClick = (data, stepIndex) => {
+          setCurrentStep(data.length - 1);
           const jsonViewer = document.getElementById("json-viewer");
-          jsonViewer.textContent = renderJSON(stepsData[stepIndex].data);
+          jsonViewer.textContent = renderJSON(data[stepIndex].data);
         };
 
         function renderJSON(data) {
           return new JsonViewer({
             value: data,
+            theme: "dark",
+            displayDataTypes: false,
           }).render("#json-viewer");
         }
 
@@ -94,13 +115,17 @@
           Steps,
           {
             direction: "vertical",
-            size: "normal",
+            size: "default",
             current: currentStep,
+            status: "error",
             items: stepsData.map((step, index) => ({
-              title: step.name,
-              description: step.description,
-              onClick: () => handleStepClick(index),
-              style: { color: "white" },
+              title: React.createElement(
+                "span",
+                { style: { color: "white", fontSize: "14px" } },
+                step.description
+              ),
+              description: "",
+              onClick: () => handleStepClick(stepsData, index),
             })),
           },
           null

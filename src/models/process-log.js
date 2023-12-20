@@ -6,6 +6,7 @@ const ProcessLog = new Schema({
     type: Types.ObjectId,
     ref: "sequential_ci_process_datas",
   },
+  processName: String,
   status: String,
   process: Schema.Types.Mixed,
   content: Schema.Types.Mixed,

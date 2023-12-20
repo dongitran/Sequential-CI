@@ -341,6 +341,7 @@ const runProcessWithName = async (name, connection) => {
   const result = await processLogModel.create({
     createdAt: new Date(),
     processId: processValue._id,
+    processName: processValue.name,
     status: PROCESS_LOG_STATUS.START,
     process: [],
   });
