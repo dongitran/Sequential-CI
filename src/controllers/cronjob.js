@@ -373,6 +373,7 @@ const runProcessWithName = async (name, connection) => {
             $push: {
               process: {
                 name: processItem.name,
+                description: processItem.description,
                 result: resultProcessItem,
               },
             },
@@ -389,7 +390,7 @@ const runProcessWithName = async (name, connection) => {
     clearInterval(idIntervalSendMessage);
 
     setTimeout(async () => {
-      await telegramBot.appendMessageAndSend("<b>Successful</b>");
+      await telegramBot.appendMessageAndSend(`Detail: <a href="https://fb20-2405-4802-8128-3900-502b-9b4d-c557-3bdd.ngrok-free.app/detail/${_idLog}">Click here</a>\n<b>Successful</b>`);
     }, 250);
   }
 };

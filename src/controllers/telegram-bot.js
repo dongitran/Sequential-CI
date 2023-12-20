@@ -35,6 +35,7 @@ async function sendMessageToDefaultGroup(message) {
 
 async function appendMessageAndSend(message) {
   messageCurrent += message;
+  console.log(messageCurrent, "messageCurrent");
   try {
     messageUpdated = false;
     const t = await bot.telegram.editMessageText(
