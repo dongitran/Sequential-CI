@@ -57,7 +57,7 @@ const cronJobProcess = async (connection) => {
 };
 
 const runProcessItem = async (processItem, parameters) => {
-  const resultProcessItem = {};
+  let resultProcessItem = {};
   try {
     await telegramBot.appendMessage(`✅ ${processItem.description}\n`);
     switch (processItem.name) {
@@ -101,9 +101,14 @@ const runProcessItem = async (processItem, parameters) => {
           for (const parameterKey of Object.keys(processItem.parameters)) {
             if (!processItem.parameters[parameterKey]) {
               parameters[parameterKey] = result;
+              resultProcessItem[parameterKey] = result;
             } else {
               if (processItem.parameters[parameterKey][0] != "#") {
                 parameters[parameterKey] = get(
+                  result,
+                  processItem.parameters[parameterKey]
+                );
+                resultProcessItem[parameterKey] = get(
                   result,
                   processItem.parameters[parameterKey]
                 );
@@ -331,12 +336,13 @@ const runProcessWithName = async (name, connection) => {
     name,
     //status: PROCESS_STATUS.ACTIVE,
   });
-  console.log(processValue, "processValue");
+
   const processLogModel = ProcessLogModel(connection);
   const result = await processLogModel.create({
     createdAt: new Date(),
     processId: processValue._id,
     status: PROCESS_LOG_STATUS.START,
+    process: [],
   });
   const _idLog = result._id;
   console.log(_idLog, "4adfkj");
@@ -353,12 +359,26 @@ const runProcessWithName = async (name, connection) => {
     }, 500);
     try {
       for (const processItem of processValue.process) {
+        console.log(processItem, "processItem");
         let resultProcessItem = {};
         [parameters, resultProcessItem] = await runProcessItem(
           processItem,
           parameters
         );
-        
+        console.log(resultProcessItem, "resultProcessItem");
+
+        await processLogModel.findOneAndUpdate(
+          { _id: _idLog },
+          {
+            $push: {
+              process: {
+                name: processItem.name,
+                result: resultProcessItem,
+              },
+            },
+          },
+          { new: true }
+        );
       }
       //await telegramBot.sendMessageCurrent();
     } catch (error) {

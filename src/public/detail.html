@@ -41,7 +41,7 @@
       const { Steps } = antd;
       const { useState } = React;
 
-      const stepsData = [
+      let stepsData = [
         {
           title: "Finished",
           description: "This is a description for Finished step.",
@@ -192,6 +192,28 @@
       const App = () => {
         const [currentStep, setCurrentStep] = useState(0);
 
+        const url = window.location.pathname;
+        const parts = url.split('/');
+        const id = parts[parts.length - 1];
+
+        fetch(`/api/detail/${id}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            
+            return response.json();
+          })
+          .then((jsonData) => {
+            const jsonViewer = document.getElementById("json-viewer");
+            //jsonViewer.textContent = JSON.stringify(jsonData, null, 2);
+            console.log(jsonData,'jsonData')
+            stepsData = jsonData[0].process.map((item)=>{return {title:'a',description:item?.description}});
+          })
+          .catch((error) => {
+            console.error("There was a problem with the fetch operation:", error);
+          });
+
         const handleStepClick = (stepIndex) => {
           setCurrentStep(stepIndex);
           const jsonViewer = document.getElementById("json-viewer");
@@ -211,7 +233,7 @@
             size: "small",
             current: currentStep,
             items: stepsData.map((step, index) => ({
-              title: step.title,
+              title: step.name,
               description: step.description,
               onClick: () => handleStepClick(index),
             })),
@@ -222,22 +244,6 @@
 
       const mountNode = document.getElementById("steps");
       createRoot(mountNode).render(React.createElement(App));
-
-      fetch(`/api/detail/123456`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          console.log(response.json(), "response");
-          return response.json();
-        })
-        .then((jsonData) => {
-          const jsonViewer = document.getElementById("json-viewer");
-          jsonViewer.textContent = JSON.stringify(jsonData, null, 2);
-        })
-        .catch((error) => {
-          console.error("There was a problem with the fetch operation:", error);
-        });
     </script>
   </body>
 </html>
