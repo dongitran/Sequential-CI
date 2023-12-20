@@ -6,15 +6,15 @@
     <style>
       body {
         background-color: #343541;
+        overflow: hidden;
       }
       .main-title {
         font-size: 2em;
         flex-direction: column;
         align-items: center;
         text-align: center;
-      }
-      .test {
-        color: "red";
+        font-weight: bold;
+        color: azure;
       }
       .steps-container {
         display: flex;
@@ -24,11 +24,16 @@
       .steps {
         width: 300px;
         margin-right: 20px;
+        max-height: 80vh;
+        overflow-y: auto;
       }
       .json-viewer {
         flex: 1;
         border: 1px solid #ccc;
         padding: 10px;
+        height: 80vh;
+        background-color: rgb(24, 24, 24);
+        overflow-y: auto;
       }
     </style>
   </head>
@@ -115,13 +120,19 @@
           Steps,
           {
             direction: "vertical",
-            size: "default",
+            size: "small",
             current: currentStep,
-            status: "error",
+            status: "finish",
             items: stepsData.map((step, index) => ({
               title: React.createElement(
                 "span",
-                { style: { color: "white", fontSize: "14px" } },
+                {
+                  style: {
+                    color: "white",
+                    fontSize: "14px",
+                    cursor: "pointer",
+                  },
+                },
                 step.description
               ),
               description: "",
