@@ -13,11 +13,10 @@ const { ProcessLogModel } = require("./models/process-log");
 
 async function startApp() {
   const connection = await connectToMongo(process.env.MONGO_URI);
-  
+
   const processLogModel = ProcessLogModel(connection);
   const data = await processLogModel.create({ createdAt: new Date() });
   console.log(data._id.toString(), "4adfkj");
-
 
   app.listen(process.env.PORT, () => {
     console.log(`Server running at http://localhost:${process.env.PORT}`);
@@ -27,7 +26,6 @@ async function startApp() {
   //app.use(express.static(path.join(__dirname, 'public')));
   app.get("/detail/:id", (req, res) => {
     const detailId = req.params.id;
-    console.log(detailId, "detailId");
     // Render your HTML file with the detailId
     res.sendFile(path.join(__dirname, "public", "detail.html"));
   });
@@ -36,7 +34,6 @@ async function startApp() {
 
     const processLogModel = ProcessLogModel(connection);
     const data = await processLogModel.find({ _id: detailId });
-    console.log(data, "39ruafhaksdh");
 
     res.json(data);
   });

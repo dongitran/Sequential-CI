@@ -158,6 +158,7 @@ const runProcessItem = async (processItem, parameters) => {
           for (const parameterKey of Object.keys(processItem.parameters)) {
             if (!processItem.parameters[parameterKey]) {
               parameters[parameterKey] = result;
+              resultProcessItem[parameterKey] = result;
             } else {
               if (processItem.parameters[parameterKey][0] != "#") {
                 parameters[parameterKey] = get(
@@ -259,6 +260,7 @@ const runProcessItem = async (processItem, parameters) => {
             for (const parameterKey of Object.keys(processItem.parameters)) {
               if (!processItem.parameters[parameterKey]) {
                 parameters[parameterKey] = result;
+                resultProcessItem[parameterKey] = result;
               } else {
                 if (processItem.parameters[parameterKey][0] != "#") {
                   parameters[parameterKey] = get(
@@ -346,7 +348,6 @@ const runProcessWithName = async (name, connection) => {
     process: [],
   });
   const _idLog = result._id;
-  console.log(_idLog, "4adfkj");
 
   if (processValue) {
     parameters = {};
@@ -360,13 +361,11 @@ const runProcessWithName = async (name, connection) => {
     }, 500);
     try {
       for (const processItem of processValue.process) {
-        console.log(processItem, "processItem");
         let resultProcessItem = {};
         [parameters, resultProcessItem] = await runProcessItem(
           processItem,
           parameters
         );
-        console.log(resultProcessItem, "resultProcessItem");
 
         await processLogModel.findOneAndUpdate(
           { _id: _idLog },
@@ -391,7 +390,9 @@ const runProcessWithName = async (name, connection) => {
     clearInterval(idIntervalSendMessage);
 
     setTimeout(async () => {
-      await telegramBot.appendMessageAndSend(`Detail: <a href="https://fb20-2405-4802-8128-3900-502b-9b4d-c557-3bdd.ngrok-free.app/detail/${_idLog}">Click here</a>\n<b>Successful</b>`);
+      await telegramBot.appendMessageAndSend(
+        `Detail: <a href="https://fb20-2405-4802-8128-3900-502b-9b4d-c557-3bdd.ngrok-free.app/detail/${_idLog}">Click here</a>\n<b>Successful</b>`
+      );
     }, 250);
   }
 };
