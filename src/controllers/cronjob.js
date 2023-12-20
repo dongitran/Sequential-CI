@@ -11,6 +11,8 @@ const telegramBot = require("./telegram-bot");
 const Joi = require("joi");
 const { parse, stringify } = require("flatted");
 const connectToMongo = require("../config/mongo");
+const { ProcessLogModel } = require("../models/process-log");
+const { PROCESS_LOG_STATUS } = require("../constants/process-log");
 
 const cronJobProcess = async (connection) => {
   try {
@@ -55,6 +57,7 @@ const cronJobProcess = async (connection) => {
 };
 
 const runProcessItem = async (processItem, parameters) => {
+  const resultProcessItem = {};
   try {
     await telegramBot.appendMessage(`✅ ${processItem.description}\n`);
     switch (processItem.name) {
@@ -70,6 +73,7 @@ const runProcessItem = async (processItem, parameters) => {
             const value = eval(commandString);
 
             parameters[parameterKey] = value;
+            resultProcessItem[parameterKey] = value;
           }
         }
         break;
@@ -111,6 +115,7 @@ const runProcessItem = async (processItem, parameters) => {
                 const value = eval(command);
 
                 parameters[parameterKey] = value;
+                resultProcessItem[parameterKey] = value;
               }
             }
           }
@@ -154,6 +159,10 @@ const runProcessItem = async (processItem, parameters) => {
                   result,
                   processItem.parameters[parameterKey]
                 );
+                resultProcessItem[parameterKey] = get(
+                  result,
+                  processItem.parameters[parameterKey]
+                );
               } else {
                 const listKey = processItem.parameters[parameterKey].split("#");
                 let tmp = get(result, listKey[1]);
@@ -162,6 +171,7 @@ const runProcessItem = async (processItem, parameters) => {
                 const value = eval(command);
 
                 parameters[parameterKey] = value;
+                resultProcessItem[parameterKey] = value;
               }
             }
           }
@@ -207,6 +217,10 @@ const runProcessItem = async (processItem, parameters) => {
                   result,
                   processItem.parameters[parameterKey]
                 );
+                resultProcessItem[parameterKey] = get(
+                  result,
+                  processItem.parameters[parameterKey]
+                );
               } else {
                 const listKey = processItem.parameters[parameterKey].split("#");
                 let tmp = get(result, listKey[1]);
@@ -215,6 +229,7 @@ const runProcessItem = async (processItem, parameters) => {
                 const value = eval(command);
 
                 parameters[parameterKey] = value;
+                resultProcessItem[parameterKey] = value;
               }
             }
           }
@@ -245,6 +260,10 @@ const runProcessItem = async (processItem, parameters) => {
                     result,
                     processItem.parameters[parameterKey]
                   );
+                  resultProcessItem[parameterKey] = get(
+                    result,
+                    processItem.parameters[parameterKey]
+                  );
                 } else {
                   const listKey =
                     processItem.parameters[parameterKey].split("#");
@@ -254,6 +273,7 @@ const runProcessItem = async (processItem, parameters) => {
                   const value = eval(command);
 
                   parameters[parameterKey] = value;
+                  resultProcessItem[parameterKey] = value;
                 }
               }
             }
@@ -302,7 +322,7 @@ const runProcessItem = async (processItem, parameters) => {
     throw error;
   }
 
-  return parameters;
+  return [parameters, resultProcessItem];
 };
 
 const runProcessWithName = async (name, connection) => {
@@ -311,6 +331,15 @@ const runProcessWithName = async (name, connection) => {
     name,
     //status: PROCESS_STATUS.ACTIVE,
   });
+  console.log(processValue, "processValue");
+  const processLogModel = ProcessLogModel(connection);
+  const result = await processLogModel.create({
+    createdAt: new Date(),
+    processId: processValue._id,
+    status: PROCESS_LOG_STATUS.START,
+  });
+  const _idLog = result._id;
+  console.log(_idLog, "4adfkj");
 
   if (processValue) {
     parameters = {};
@@ -324,7 +353,12 @@ const runProcessWithName = async (name, connection) => {
     }, 500);
     try {
       for (const processItem of processValue.process) {
-        parameters = await runProcessItem(processItem, parameters);
+        let resultProcessItem = {};
+        [parameters, resultProcessItem] = await runProcessItem(
+          processItem,
+          parameters
+        );
+        
       }
       //await telegramBot.sendMessageCurrent();
     } catch (error) {

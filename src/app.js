@@ -9,9 +9,14 @@ const telegramBot = require("./controllers/telegram-bot");
 const app = express();
 const cron = require("node-cron");
 const { ProcessDataModel } = require("./models/process-data");
+const { ProcessLogModel } = require("./models/process-log");
 
 async function startApp() {
   const connection = await connectToMongo(process.env.MONGO_URI);
+
+  const processLogModel = ProcessLogModel(connection);
+  const data = await processLogModel.create({ createdAt: new Date() });
+  console.log(data._id.toString(), "4adfkj");
 
   app.listen(process.env.PORT, () => {
     console.log(`Server running at http://localhost:${process.env.PORT}`);

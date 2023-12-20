@@ -1,10 +1,18 @@
-const { Schema, model } = require("mongoose");
+const { Schema, Types } = require("mongoose");
 
 const ProcessLog = new Schema({
   createdAt: Date,
+  processId: {
+    type: Types.ObjectId,
+    ref: "sequential_ci_process_datas",
+  },
+  status: String,
+  process: Schema.Types.Mixed,
   content: Schema.Types.Mixed,
 });
 
-const ProcessLogModel = model("sequential_ci_process_logs", ProcessLog);
+const ProcessLogModel = (connection) => {
+  return connection.model("sequential_ci_process_logs", ProcessLog);
+};
 
 module.exports = { ProcessLog, ProcessLogModel };
