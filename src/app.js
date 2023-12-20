@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const path = require("path");
 const bodyParser = require("body-parser");
 const processDataRoutes = require("./routes/process-data");
 const connectToMongo = require("./config/mongo");
@@ -17,6 +18,22 @@ async function startApp() {
   });
 
   app.use(express.static("public"));
+  //app.use(express.static(path.join(__dirname, 'public')));
+  app.get("/detail/:id", (req, res) => {
+    const detailId = req.params.id;
+    console.log(detailId, "detailId");
+    // Render your HTML file with the detailId
+    res.sendFile(path.join(__dirname, "public", "detail.html"));
+  });
+  app.get("/api/detail/:id", (req, res) => {
+    const detailId = req.params.id;
+
+    res.json([
+      { id: "12345678", content: "Lorem ipsum 12345678" },
+      { id: "87654321", content: "Lorem ipsum 87654321" },
+    ]);
+  });
+
   app.get("/api/data", async (req, res) => {
     try {
       res.json({});

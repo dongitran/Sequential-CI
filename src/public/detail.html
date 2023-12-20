@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Interactive Steps with JSON Viewer - antd@5.12.4</title>
+    <style>
+      /* Add your styles here */
+      .steps-container {
+        display: flex;
+      }
+      .steps {
+        width: 200px;
+        margin-right: 20px;
+      }
+      .json-viewer {
+        flex: 1;
+        border: 1px solid #ccc;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="steps-container">
+      <div class="steps" id="steps"></div>
+      <div class="json-viewer" id="json-viewer">
+        JSON data will display here
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+    <script src="https://unpkg.com/antd@5.12.4/dist/antd-with-locales.min.js"></script>
+    <script src="https://unpkg.com/@ant-design/icons/dist/index.umd.js"></script>
+    <script src="https://unpkg.com/react-router-dom/dist/umd/react-router-dom.production.min.js"></script>
+    <script src="https://unpkg.com/react-router/dist/umd/react-router.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@textea/json-viewer@3"></script>
+
+    <script>
+      const { createRoot } = ReactDOM;
+      const { Steps } = antd;
+      const { useState } = React;
+
+      const stepsData = [
+        {
+          title: "Finished",
+          description: "This is a description for Finished step.",
+          data: {
+            status: "active",
+            name: "Portal-Charge random card",
+            process: [
+              {
+                name: "postgres",
+                description: "Get id card limit",
+                query: "select id from tbl_cards order by id desc limit 1; ",
+                parameters: {
+                  cardIdLimit: "id",
+                },
+              },
+              {
+                name: "generate-data",
+                description:
+                  "Generate card id for charge and init username and password portal",
+                parameters: {
+                  cardIdToGetRandomActiveCard:
+                    "Math.floor(Math.random()*{parameters['cardIdLimit']})",
+                },
+              },
+              {
+                name: "postgres",
+                description: "Get card to topup",
+                query:
+                  "select * from tbl_cards c inner join tbl_prepaid_card_tokens p on c.prepaid_card_token_id = p.id where c.id >= {parameters['cardIdToGetRandomActiveCard']} and c.status = 'activated' and c.expiration > now() and p.available_balance > 0 order by c.id asc limit 1",
+                parameters: {
+                  card: null,
+                  cardId: "id",
+                  campaignId: "campaign_id",
+                },
+              },
+              {
+                name: "api",
+                description: "Login portal web to get token",
+                curl: "curl --location 'https://localhost:3000/authentication'  --header 'Accept: */*'  --header 'Accept-Language: en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7'  --header 'Connection: keep-alive'  --header 'Content-Type: application/json'  --header 'Origin: https://localhost:3000'  --header 'Referer: https://localhost:3000/'  --header 'Sec-Fetch-Dest: empty'  --header 'Sec-Fetch-Mode: cors'  --header 'Sec-Fetch-Site: same-site'  --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'  --header 'keycloaktoken: null'  --header 'sec-ch-ua: \"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Google Chrome\";v=\"120\"'  --header 'sec-ch-ua-mobile: ?0'  --header 'sec-ch-ua-platform: \"Windows\"'  --data '{\"strategy\":\"keycloak\",\"email\":\"{parameters['portalEmail']}\",\"password\":\"{parameters['portalPassword']}\"}'",
+                parameters: {
+                  portalAccessToken: "accessToken",
+                  portalKeycloakToken: "authentication.keycloakToken",
+                },
+              },
+              {
+                name: "api",
+                description: "Charge request",
+                curl: "curl --location 'https://localhost:3000/charge-requests'  --header 'Accept: */*'  --header 'Accept-Language: en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7'  --header 'Authorization: Bearer {parameters['portalAccessToken']}'  --header 'Connection: keep-alive'  --header 'Content-Type: application/json'  --header 'Origin: https://localhost:3000'  --header 'Referer: https://localhost:3000/'  --header 'Sec-Fetch-Dest: empty'  --header 'Sec-Fetch-Mode: cors'  --header 'Sec-Fetch-Site: same-site'  --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'  --header 'keycloaktoken: {parameters['portalKeycloakToken']}'  --header 'sec-ch-ua: \"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Google Chrome\";v=\"120\"'  --header 'sec-ch-ua-mobile: ?0'  --header 'sec-ch-ua-platform: \"Windows\"'  --data '{\"cardId\":\"{parameters['cardId']}\",\"amount\":1,\"reason\":{\"key\":\"system_error\",\"description\":\"Hệ thống lỗi\",\"extraData\":{\"isRefundAmountSubPO\":true}},\"isRefundAmountSubPO\":true}'",
+                parameters: {
+                  chargeResult: null,
+                },
+              },
+              {
+                name: "postgres",
+                description: "Get id card limit",
+                query: "select id from tbl_cards order by id desc limit 1; ",
+                parameters: {
+                  cardIdLimit: "id",
+                },
+              },
+              {
+                name: "generate-data",
+                description:
+                  "Generate card id for charge and init username and password portal",
+                parameters: {
+                  cardIdToGetRandomActiveCard:
+                    "Math.floor(Math.random()*{parameters['cardIdLimit']})",
+                },
+              },
+              {
+                name: "postgres",
+                description: "Get card to topup",
+                query:
+                  "select * from tbl_cards c inner join tbl_prepaid_card_tokens p on c.prepaid_card_token_id = p.id where c.id >= {parameters['cardIdToGetRandomActiveCard']} and c.status = 'activated' and c.expiration > now() and p.available_balance > 0 order by c.id asc limit 1",
+                parameters: {
+                  card: null,
+                  cardId: "id",
+                  campaignId: "campaign_id",
+                },
+              },
+              {
+                name: "api",
+                description: "Login portal web to get token",
+                curl: "curl --location 'https://localhost:3000/authentication'  --header 'Accept: */*'  --header 'Accept-Language: en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7'  --header 'Connection: keep-alive'  --header 'Content-Type: application/json'  --header 'Origin: https://localhost:3000'  --header 'Referer: https://localhost:3000/'  --header 'Sec-Fetch-Dest: empty'  --header 'Sec-Fetch-Mode: cors'  --header 'Sec-Fetch-Site: same-site'  --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'  --header 'keycloaktoken: null'  --header 'sec-ch-ua: \"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Google Chrome\";v=\"120\"'  --header 'sec-ch-ua-mobile: ?0'  --header 'sec-ch-ua-platform: \"Windows\"'  --data '{\"strategy\":\"keycloak\",\"email\":\"{parameters['portalEmail']}\",\"password\":\"{parameters['portalPassword']}\"}'",
+                parameters: {
+                  portalAccessToken: "accessToken",
+                  portalKeycloakToken: "authentication.keycloakToken",
+                },
+              },
+              {
+                name: "api",
+                description: "Charge request",
+                curl: "curl --location 'https://localhost:3000/charge-requests'  --header 'Accept: */*'  --header 'Accept-Language: en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7'  --header 'Authorization: Bearer {parameters['portalAccessToken']}'  --header 'Connection: keep-alive'  --header 'Content-Type: application/json'  --header 'Origin: https://localhost:3000'  --header 'Referer: https://localhost:3000/'  --header 'Sec-Fetch-Dest: empty'  --header 'Sec-Fetch-Mode: cors'  --header 'Sec-Fetch-Site: same-site'  --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'  --header 'keycloaktoken: {parameters['portalKeycloakToken']}'  --header 'sec-ch-ua: \"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Google Chrome\";v=\"120\"'  --header 'sec-ch-ua-mobile: ?0'  --header 'sec-ch-ua-platform: \"Windows\"'  --data '{\"cardId\":\"{parameters['cardId']}\",\"amount\":1,\"reason\":{\"key\":\"system_error\",\"description\":\"Hệ thống lỗi\",\"extraData\":{\"isRefundAmountSubPO\":true}},\"isRefundAmountSubPO\":true}'",
+                parameters: {
+                  chargeResult: null,
+                },
+              },
+            ],
+          },
+        },
+        {
+          title: "In Progress",
+          description: "This is a description for In Progress step.",
+          data: { sampleData: "In Progress step data" },
+        },
+        {
+          title: "Waiting",
+          description: "This is a description for Waiting step.",
+          data: { sampleData: "Waiting step data" },
+        },
+        {
+          title: "Waiting",
+          description: "This is a description for Waiting step.",
+          data: { sampleData: "Waiting step data" },
+        },
+        {
+          title: "Waiting",
+          description: "This is a description for Waiting step.",
+          data: { sampleData: "Waiting step data" },
+        },
+        {
+          title: "Waiting",
+          description: "This is a description for Waiting step.",
+          data: { sampleData: "Waiting step data" },
+        },
+        {
+          title: "Waiting",
+          description: "This is a description for Waiting step.",
+          data: { sampleData: "Waiting step data" },
+        },
+        {
+          title: "Waiting",
+          description: "This is a description for Waiting step.",
+          data: { sampleData: "Waiting step data" },
+        },
+        {
+          title: "Waiting",
+          description: "This is a description for Waiting step.",
+          data: { sampleData: "Waiting step data" },
+        },
+        {
+          title: "Waiting",
+          description: "This is a description for Waiting step.",
+          data: { sampleData: "Waiting step data" },
+        },
+      ];
+
+      const App = () => {
+        const [currentStep, setCurrentStep] = useState(0);
+
+        const handleStepClick = (stepIndex) => {
+          setCurrentStep(stepIndex);
+          const jsonViewer = document.getElementById("json-viewer");
+          jsonViewer.textContent = renderJSON(stepsData[stepIndex].data);
+        };
+
+        function renderJSON(data) {
+          return new JsonViewer({
+            value: data,
+          }).render("#json-viewer");
+        }
+
+        return React.createElement(
+          Steps,
+          {
+            direction: "vertical",
+            size: "small",
+            current: currentStep,
+            items: stepsData.map((step, index) => ({
+              title: step.title,
+              description: step.description,
+              onClick: () => handleStepClick(index),
+            })),
+          },
+          null
+        );
+      };
+
+      const mountNode = document.getElementById("steps");
+      createRoot(mountNode).render(React.createElement(App));
+
+      fetch(`/api/detail/123456`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          console.log(response.json(), "response");
+          return response.json();
+        })
+        .then((jsonData) => {
+          const jsonViewer = document.getElementById("json-viewer");
+          jsonViewer.textContent = JSON.stringify(jsonData, null, 2);
+        })
+        .catch((error) => {
+          console.error("There was a problem with the fetch operation:", error);
+        });
+    </script>
+  </body>
+</html>

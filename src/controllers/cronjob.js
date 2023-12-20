@@ -25,7 +25,7 @@ const cronJobProcess = async (connection) => {
 
     const idIntervalSendMessage = setInterval(async () => {
       await telegramBot.sendMessageCurrent(true);
-    }, 500);
+    }, 3500);
     for (const processValue of allProcessData) {
       parameters = {};
       console.log(`Running: ${processValue.name}`);
@@ -37,7 +37,7 @@ const cronJobProcess = async (connection) => {
         for (const processItem of processValue.process) {
           parameters = await runProcessItem(processItem, parameters);
         }
-        await telegramBot.sendMessageCurrent();
+        //await telegramBot.sendMessageCurrent();
       } catch (error) {
         console.log(error, "Error item");
         await telegramBot.sendMessageCurrent();
@@ -45,6 +45,10 @@ const cronJobProcess = async (connection) => {
       console.log(JSON.stringify(parameters), "parameters");
     }
     clearInterval(idIntervalSendMessage);
+
+    setTimeout(async () => {
+      await telegramBot.appendMessageAndSend("<b>Successful</b>");
+    }, 250);
   } catch (error) {
     console.log(error, "Error process");
   }
