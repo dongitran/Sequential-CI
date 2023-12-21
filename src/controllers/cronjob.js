@@ -35,11 +35,41 @@ const cronJobProcess = async (connection) => {
         `--------------------------- \n🚁 Running: <b>${processValue.name}</b>\n`
       );
 
+      const processLogModel = ProcessLogModel(connection);
+      const result = await processLogModel.create({
+        createdAt: new Date(),
+        processId: processValue._id,
+        processName: processValue.name,
+        status: PROCESS_LOG_STATUS.START,
+        process: [],
+      });
+      const _idLog = result._id;
+
       try {
         for (const processItem of processValue.process) {
-          [parameters] = await runProcessItem(processItem, parameters);
+          [parameters, resultProcessItem] = await runProcessItem(
+            processItem,
+            parameters
+          );
+
+          await processLogModel.findOneAndUpdate(
+            { _id: _idLog },
+            {
+              $push: {
+                process: {
+                  name: processItem.name,
+                  description: processItem.description,
+                  result: resultProcessItem,
+                },
+              },
+            },
+            { new: true }
+          );
         }
         //await telegramBot.sendMessageCurrent();
+        await telegramBot.appendMessage(
+          `Detail: <a href="https://4a70-2405-4802-8128-3900-ac31-a11-a554-4328.ngrok-free.app/detail/${_idLog}">Click here</a>\n`
+        );
       } catch (error) {
         console.log(error, "Error item");
         await telegramBot.sendMessageCurrent();
@@ -391,7 +421,7 @@ const runProcessWithName = async (name, connection) => {
 
     setTimeout(async () => {
       await telegramBot.appendMessageAndSend(
-        `Detail: <a href="https://fb20-2405-4802-8128-3900-502b-9b4d-c557-3bdd.ngrok-free.app/detail/${_idLog}">Click here</a>\n<b>Successful</b>`
+        `Detail: <a href="https://4a70-2405-4802-8128-3900-ac31-a11-a554-4328.ngrok-free.app/detail/${_idLog}">Click here</a>\n<b>Successful</b>`
       );
     }, 250);
   }
