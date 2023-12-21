@@ -29,7 +29,7 @@ const cronJobProcess = async (connection) => {
       await telegramBot.sendMessageCurrent(true);
     }, 3500);
     for (const processValue of allProcessData) {
-      parameters = {};
+      let parameters = {};
       console.log(`Running: ${processValue.name}`);
       await telegramBot.appendMessageAndSend(
         `--------------------------- \n🚁 Running: <b>${processValue.name}</b>\n`
@@ -37,7 +37,7 @@ const cronJobProcess = async (connection) => {
 
       try {
         for (const processItem of processValue.process) {
-          parameters = await runProcessItem(processItem, parameters);
+          [parameters] = await runProcessItem(processItem, parameters);
         }
         //await telegramBot.sendMessageCurrent();
       } catch (error) {
