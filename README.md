@@ -7,7 +7,7 @@ Sequential CI is a web server that allows users to update CI configuration files
 ```json
 {
   "status": "active",
-  "name": "name of process",
+  "name": "name-of-process",
   "process": [
     {
       "type": "generate-data",
@@ -29,7 +29,7 @@ Sequential CI is a web server that allows users to update CI configuration files
 ### Running Tests
 To execute specific processes/tests, use the Telegram bot provided within this repository. Employ the following commands:
 
-- 🏃‍♂️ `/run:Vietguys-Generate and identified card`: Executes the specified process.
+- 🏃‍♂️ `/run:name-of-process`: Executes the specified process.
 - 📋 `/list`: Lists available processes.
 - ⏩ `/runall`: Runs all processes.
 - ℹ️ `/help`: Displays available commands and their usage.
