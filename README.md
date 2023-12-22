@@ -7,17 +7,17 @@ Sequential CI is a web server that allows users to update CI configuration files
 ```json
 {
   "status": "active",
-  "name": "Vietguys-Generate and identified card",
+  "name": "name of process",
   "process": [
     {
       "type": "generate-data",
-      "description": "Generate data for generate unidentified card",
-      // Parameters for generating unidentified cards
+      "description": "Generate data ",
+      // Parameters for generating data
     },
     {
       "type": "api",
-      "description": "Send API generate card",
-      // Command to send the API generate card
+      "description": "Send API",
+      // Command to send the API
     },
     // Other process steps
   ]
