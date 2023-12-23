@@ -323,19 +323,32 @@ const runProcessItem = async (processItem, parameters) => {
         break;
       }
       case PROCESS_NAME.VALIDATE_JSON: {
-        let schemaString = JSON.stringify(processItem.content);
-        Object.keys(parameters).forEach((key) => {
-          const regex = new RegExp(`{parameters\\['${key}']}`, "g");
-          schemaString = schemaString.replace(regex, parameters[key]);
-        });
-        schemaString = JSON.parse(schemaString);
+        let schema;
+        if (processItem.version === "1") {
+          let schemaString = JSON.stringify(processItem.content);
+          Object.keys(parameters).forEach((key) => {
+            const regex = new RegExp(`{parameters\\['${key}']}`, "g");
+            schemaString = schemaString.replace(regex, parameters[key]);
+          });
+          schemaString = JSON.parse(schemaString);
+          console.log(schemaString, "schemaString");
 
-        const schemaObject = {};
-        for (const [key, value] of Object.entries(schemaString)) {
-          schemaObject[key] = eval(value);
+          schema = eval(schemaString);
+        } else {
+          let schemaString = JSON.stringify(processItem.content);
+          Object.keys(parameters).forEach((key) => {
+            const regex = new RegExp(`{parameters\\['${key}']}`, "g");
+            schemaString = schemaString.replace(regex, parameters[key]);
+          });
+          schemaString = JSON.parse(schemaString);
+
+          const schemaObject = {};
+          for (const [key, value] of Object.entries(schemaString)) {
+            schemaObject[key] = eval(value);
+          }
+
+          schema = Joi.object().keys(schemaObject);
         }
-
-        const schema = Joi.object().keys(schemaObject);
 
         // TODO: check if value received is undefined
         const { error, value } = schema.validate(
