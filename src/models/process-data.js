@@ -1,3 +1,4 @@
+const { Types } = require("mongoose");
 const { Schema } = require("mongoose");
 
 const ProcessData = new Schema({
@@ -6,6 +7,10 @@ const ProcessData = new Schema({
   status: String,
   name: String,
   chatId: String,
+  cloneFrom: {
+    type: Types.ObjectId,
+    ref: "sequential_ci_process_datas",
+  },
   process: Schema.Types.Mixed,
 });
 

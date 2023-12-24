@@ -1,4 +1,4 @@
-const { get } = require("lodash");
+const { get, omit } = require("lodash");
 const { v4: uuidv4 } = require("uuid");
 const { Client } = require("pg");
 const mysql = require("mysql2/promise");
@@ -14,6 +14,7 @@ const connectToMongo = require("../config/mongo");
 const { ProcessLogModel } = require("../models/process-log");
 const { PROCESS_LOG_STATUS } = require("../constants/process-log");
 const TelegramManager = require("./telegram-manager");
+const { Types } = require("mongoose");
 
 const cronJobProcess = async (connection) => {
   try {
@@ -410,7 +411,9 @@ const runProcessWithName = async (name, connection, chatId) => {
     parameters = {};
     console.log(`Running: ${processValue.name}`);
     await telegramManager.sendMessageAndUpdateMessageId(
-      `--------------------------- \n🚁 Running: <b>${processValue.name}</b>\nId: <code>${processValue._id.toString()}</code>\n`
+      `--------------------------- \n🚁 Running: <b>${
+        processValue.name
+      }</b>\nId: <code>${processValue._id.toString()}</code>\n`
     );
 
     const idIntervalSendMessage = setInterval(async () => {
@@ -454,4 +457,39 @@ const runProcessWithName = async (name, connection, chatId) => {
   }
 };
 
-module.exports = { cronJobProcess, runProcessWithName };
+const cloneProcess = async (id, connection, chatId) => {
+  let telegramManager = undefined;
+  try {
+    // Create object telegram manager
+    const bot = telegramBot.getBot();
+    telegramManager = new TelegramManager(bot, chatId);
+
+    // Get process
+    const processDataModel = ProcessDataModel(connection);
+    const processValue = await processDataModel.findOne({
+      _id: new Types.ObjectId(id),
+      //status: PROCESS_STATUS.ACTIVE,
+    });
+
+    // Validate chat id
+    if (processValue.chatId === chatId) {
+      throw `The process has already been exists`;
+    }
+
+    await processDataModel.create({
+      ...omit(processValue, ["_id"]),
+      createdAt: new Date(),
+      chatId,
+      cloneFrom: processValue._id,
+    });
+  } catch (error) {
+    if (telegramManager) {
+      console.log(error, "errorerror");
+      await telegramManager.sendMessageAndUpdateMessageId(
+        error?.message || error
+      );
+    }
+  }
+};
+
+module.exports = { cronJobProcess, runProcessWithName, cloneProcess };

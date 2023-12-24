@@ -4,7 +4,11 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const processDataRoutes = require("./routes/process-data");
 const connectToMongo = require("./config/mongo");
-const { cronJobProcess, runProcessWithName } = require("./controllers/cronjob");
+const {
+  cronJobProcess,
+  runProcessWithName,
+  cloneProcess,
+} = require("./controllers/cronjob");
 const telegramBot = require("./controllers/telegram-bot");
 const app = express();
 const cron = require("node-cron");
@@ -59,7 +63,7 @@ async function startApp() {
     const ProcessDataModelWithConnection = ProcessDataModel(connection);
     // Check command run process
     const chatId = ctx?.update?.message?.chat?.id;
-    const msg = ctx?.update?.message?.text;
+    const msg = ctx?.update?.message?.text?.trim();
     if (msg?.trim() === "/runall") {
       cronJobProcess(connection);
     } else if (msg?.substring(0, 5) == "/run:") {
@@ -86,6 +90,8 @@ async function startApp() {
       await ctx.replyWithHTML(
         replyMessage + listCommand + runCommand + helpCommand
       );
+    } else if (msg?.substring(0, 7) === "/clone:") {
+      await cloneProcess(msg?.substring(7)?.trim(), connection, chatId);
     }
   });
 
