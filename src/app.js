@@ -9,7 +9,7 @@ const {
   runProcessWithName,
   cloneProcess,
   deleteProcess,
-} = require("./controllers/cronjob");
+} = require("./controllers/process");
 const telegramBot = require("./controllers/telegram-bot");
 const app = express();
 const cron = require("node-cron");
@@ -17,6 +17,7 @@ const { ProcessDataModel } = require("./models/process-data");
 const { ProcessLogModel } = require("./models/process-log");
 const TelegramManager = require("./controllers/telegram-manager");
 const { getDataByKey } = require("./utils/common");
+const { MessageResponse } = require("./constants/message-response");
 
 async function startApp() {
   const connection = await connectToMongo(process.env.MONGO_URI);
@@ -84,7 +85,7 @@ async function startApp() {
             }</b> \n Id: <code>${item._id.toString()}</code>`
         )
         .join("\n");
-      await ctx.replyWithHTML(replyMessage || "None");
+      await ctx.replyWithHTML(replyMessage || MessageResponse.TRY_IT);
     } else if (msg?.substring(0, 5) === "/help") {
       const emojiList = "📊";
       const emojiRun = "🚀";

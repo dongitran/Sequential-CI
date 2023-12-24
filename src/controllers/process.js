@@ -476,13 +476,17 @@ const cloneProcess = async (id, connection, chatId, newName) => {
       throw `The process has already been exists`;
     }
 
-    await processDataModel.create({
+    const result = await processDataModel.create({
       ...omit(processValue, ["_id"]),
       ...(newName && { name: newName }),
       createdAt: new Date(),
       chatId,
       cloneFrom: processValue._id,
     });
+
+    await telegramManager.sendMessageAndUpdateMessageId(
+      `🌐 <b>Clone process sucessful</b>\nId: <code>${result._id.toString()}</code>\n`
+    );
   } catch (error) {
     if (telegramManager) {
       await telegramManager.sendMessageAndUpdateMessageId(
@@ -512,7 +516,21 @@ const deleteProcess = async (id, connection, chatId) => {
     }
 
     if (processValue.deletedAt) {
+      throw "Your process has been deleted.";
     }
+
+    await processDataModel.findOneAndUpdate(
+      {
+        _id: new Types.ObjectId(id),
+      },
+      {
+        deletedAt: new Date(),
+      }
+    );
+
+    await telegramManager.sendMessageAndUpdateMessageId(
+      `🔒 <b>Delete process sucessful</b>\nId: <code>${id}</code>\n`
+    );
   } catch (error) {
     if (telegramManager) {
       await telegramManager.sendMessageAndUpdateMessageId(
