@@ -5,6 +5,7 @@ const ProcessData = new Schema({
   updatedAt: Date,
   status: String,
   name: String,
+  chatId: String,
   process: Schema.Types.Mixed,
 });
 

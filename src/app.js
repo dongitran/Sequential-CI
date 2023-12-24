@@ -56,19 +56,22 @@ async function startApp() {
     console.log(ctx?.update?.message?.chat?.id, "ctxctx");
     const ProcessDataModelWithConnection = ProcessDataModel(connection);
     // Check command run process
+    const chatId = ctx?.update?.message?.chat?.id;
     const msg = ctx?.update?.message?.text;
     if (msg?.trim() === "/runall") {
       cronJobProcess(connection);
     } else if (msg?.substring(0, 5) == "/run:") {
       runProcessWithName(msg?.substring(5).trim(), connection);
     } else if (msg?.substring(0, 5) === "/list") {
-      const allProcessData = await ProcessDataModelWithConnection.find({});
-      const processNames = allProcessData.map((item) => item.name);
+      const allProcessData = await ProcessDataModelWithConnection.find({
+        chatId,
+      });
+      const processNames = allProcessData.map((item) => item?.name);
       const emoji = "⚙️";
       const replyMessage = processNames
         .map((name) => emoji + " " + name)
         .join("\n");
-      await ctx.replyWithHTML(replyMessage);
+      await ctx.replyWithHTML(replyMessage || 'None');
     } else if (msg?.substring(0, 5) === "/help") {
       const emojiList = "📊";
       const emojiRun = "🚀";

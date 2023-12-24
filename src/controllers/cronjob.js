@@ -26,12 +26,12 @@ const cronJobProcess = async (connection) => {
     );
 
     const idIntervalSendMessage = setInterval(async () => {
-      await telegramBot.sendMessageCurrent(true);
+      //await telegramBot.sendMessageCurrent(true);
     }, 3500);
     for (const processValue of allProcessData) {
       let parameters = {};
       console.log(`Running: ${processValue.name}`);
-      await telegramBot.appendMessageAndSend(
+      await telegramBot.sendMessageToDefaultGroup(
         `--------------------------- \n🚁 Running: <b>${processValue.name}</b>\n`
       );
 
@@ -66,10 +66,10 @@ const cronJobProcess = async (connection) => {
             { new: true }
           );
         }
-        //await telegramBot.sendMessageCurrent();
         await telegramBot.appendMessage(
-          `Detail: <a href="https://4a70-2405-4802-8128-3900-ac31-a11-a554-4328.ngrok-free.app/detail/${_idLog}">Click here</a>\n`
+          `Detail: <a href="${process.env.URL}/detail/${_idLog}">Click here</a>\n`
         );
+        await telegramBot.sendMessageCurrent();
       } catch (error) {
         console.log(error, "Error item");
         await telegramBot.sendMessageCurrent();
@@ -434,7 +434,7 @@ const runProcessWithName = async (name, connection) => {
 
     setTimeout(async () => {
       await telegramBot.appendMessageAndSend(
-        `Detail: <a href="https://4a70-2405-4802-8128-3900-ac31-a11-a554-4328.ngrok-free.app/detail/${_idLog}">Click here</a>\n<b>Successful</b>`
+        `Detail: <a href="${process.env.URL}/detail/${_idLog}">Click here</a>\n<b>Successful</b>`
       );
     }, 250);
   }
