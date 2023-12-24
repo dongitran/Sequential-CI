@@ -15,6 +15,7 @@ const cron = require("node-cron");
 const { ProcessDataModel } = require("./models/process-data");
 const { ProcessLogModel } = require("./models/process-log");
 const TelegramManager = require("./controllers/telegram-manager");
+const { getDataByKey } = require("./utils/common");
 
 async function startApp() {
   const connection = await connectToMongo(process.env.MONGO_URI);
@@ -91,7 +92,10 @@ async function startApp() {
         replyMessage + listCommand + runCommand + helpCommand
       );
     } else if (msg?.substring(0, 7) === "/clone:") {
-      await cloneProcess(msg?.substring(7)?.trim(), connection, chatId);
+      const command = msg?.substring(7)?.trim();
+      const id = command?.split(" ")[0];
+      const newName = getDataByKey(command, "name");
+      await cloneProcess(id, connection, chatId, newName);
     }
   });
 

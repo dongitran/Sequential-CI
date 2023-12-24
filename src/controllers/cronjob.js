@@ -457,7 +457,7 @@ const runProcessWithName = async (name, connection, chatId) => {
   }
 };
 
-const cloneProcess = async (id, connection, chatId) => {
+const cloneProcess = async (id, connection, chatId, newName) => {
   let telegramManager = undefined;
   try {
     // Create object telegram manager
@@ -478,6 +478,7 @@ const cloneProcess = async (id, connection, chatId) => {
 
     await processDataModel.create({
       ...omit(processValue, ["_id"]),
+      ...(newName && {name: newName}),
       createdAt: new Date(),
       chatId,
       cloneFrom: processValue._id,
