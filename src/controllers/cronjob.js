@@ -377,11 +377,24 @@ const runProcessItem = async (processItem, parameters, telegramManager) => {
 };
 
 const runProcessWithName = async (name, connection, chatId) => {
+  // Create object telegram manager
+  const bot = telegramBot.getBot();
+  const telegramManager = new TelegramManager(bot, chatId);
+
+  // Get process
   const ProcessDataModelWithConnection = ProcessDataModel(connection);
   const processValue = await ProcessDataModelWithConnection.findOne({
     name,
+    chatId,
     //status: PROCESS_STATUS.ACTIVE,
   });
+
+  if (!processValue) {
+    await telegramManager.sendMessageAndUpdateMessageId(
+      `--------------------------- \n<b>${name}</b> not exists\n`
+    );
+    return;
+  }
 
   const processLogModel = ProcessLogModel(connection);
   const result = await processLogModel.create({
@@ -393,15 +406,11 @@ const runProcessWithName = async (name, connection, chatId) => {
   });
   const _idLog = result._id;
 
-  // Create object telegram manager
-  const bot = telegramBot.getBot();
-  const telegramManager = new TelegramManager(bot, chatId);
-
   if (processValue) {
     parameters = {};
     console.log(`Running: ${processValue.name}`);
     await telegramManager.sendMessageAndUpdateMessageId(
-      `--------------------------- \n🚁 Running: <b>${processValue.name}</b>\n`
+      `--------------------------- \n🚁 Running: <b>${processValue.name}</b>\nId: <code>${processValue._id.toString()}</code>\n`
     );
 
     const idIntervalSendMessage = setInterval(async () => {
@@ -430,7 +439,6 @@ const runProcessWithName = async (name, connection, chatId) => {
           { new: true }
         );
       }
-      await telegramBot.sendMessageCurrent(true);
     } catch (error) {
       console.log(error, "Error item");
       await telegramManager.sendMessageCurrent(false);
