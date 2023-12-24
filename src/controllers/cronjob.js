@@ -478,19 +478,53 @@ const cloneProcess = async (id, connection, chatId, newName) => {
 
     await processDataModel.create({
       ...omit(processValue, ["_id"]),
-      ...(newName && {name: newName}),
+      ...(newName && { name: newName }),
       createdAt: new Date(),
       chatId,
       cloneFrom: processValue._id,
     });
   } catch (error) {
     if (telegramManager) {
-      console.log(error, "errorerror");
       await telegramManager.sendMessageAndUpdateMessageId(
-        error?.message || error
+        "❗️" + error?.message || error
       );
     }
   }
 };
 
-module.exports = { cronJobProcess, runProcessWithName, cloneProcess };
+const deleteProcess = async (id, connection, chatId) => {
+  let telegramManager = undefined;
+  try {
+    // Create object telegram manager
+    const bot = telegramBot.getBot();
+    telegramManager = new TelegramManager(bot, chatId);
+
+    // Get process
+    const processDataModel = ProcessDataModel(connection);
+    const processValue = await processDataModel.findOne({
+      _id: new Types.ObjectId(id),
+      chatId,
+      //status: PROCESS_STATUS.ACTIVE,
+    });
+
+    if (!processValue) {
+      throw "Process not found";
+    }
+
+    if (processValue.deletedAt) {
+    }
+  } catch (error) {
+    if (telegramManager) {
+      await telegramManager.sendMessageAndUpdateMessageId(
+        `❗️${error?.message || error}`
+      );
+    }
+  }
+};
+
+module.exports = {
+  cronJobProcess,
+  runProcessWithName,
+  cloneProcess,
+  deleteProcess,
+};

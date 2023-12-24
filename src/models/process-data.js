@@ -4,6 +4,7 @@ const { Schema } = require("mongoose");
 const ProcessData = new Schema({
   createdAt: Date,
   updatedAt: Date,
+  deletedAt: Date || undefined || null,
   status: String,
   name: String,
   chatId: String,

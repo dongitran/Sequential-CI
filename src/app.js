@@ -8,6 +8,7 @@ const {
   cronJobProcess,
   runProcessWithName,
   cloneProcess,
+  deleteProcess,
 } = require("./controllers/cronjob");
 const telegramBot = require("./controllers/telegram-bot");
 const app = express();
@@ -72,11 +73,16 @@ async function startApp() {
     } else if (msg?.substring(0, 5) === "/list") {
       const allProcessData = await ProcessDataModelWithConnection.find({
         chatId,
+        $or: [{ deletedAt: { $eq: null } }, { deletedAt: { $exists: false } }],
       });
-      const processNames = allProcessData.map((item) => item?.name);
       const emoji = "⚙️";
-      const replyMessage = processNames
-        .map((name) => emoji + " " + name)
+      const replyMessage = allProcessData
+        .map(
+          (item) =>
+            `${emoji} <b>${
+              item.name
+            }</b> \n Id: <code>${item._id.toString()}</code>`
+        )
         .join("\n");
       await ctx.replyWithHTML(replyMessage || "None");
     } else if (msg?.substring(0, 5) === "/help") {
@@ -96,6 +102,10 @@ async function startApp() {
       const id = command?.split(" ")[0];
       const newName = getDataByKey(command, "name");
       await cloneProcess(id, connection, chatId, newName);
+    } else if (msg?.substring(0, 8) === "/delete:") {
+      const command = msg?.substring(8)?.trim();
+      const id = command?.split(" ")[0];
+      await deleteProcess(id, connection, chatId);
     }
   });
 
