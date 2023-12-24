@@ -17,6 +17,10 @@ function init() {
   return bot;
 }
 
+function getBot() {
+  return bot;
+}
+
 async function sendMessageToDefaultGroup(message) {
   messageCurrent = message;
   try {
@@ -93,6 +97,7 @@ async function sendMessageCurrent(checkTime) {
 
 module.exports = {
   init,
+  getBot,
   sendMessageToDefaultGroup,
   appendMessageAndSend,
   appendMessage,
