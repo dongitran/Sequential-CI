@@ -13,6 +13,7 @@ const { parse, stringify } = require("flatted");
 const connectToMongo = require("../config/mongo");
 const { ProcessLogModel } = require("../models/process-log");
 const { PROCESS_LOG_STATUS } = require("../constants/process-log");
+const TelegramManager = require("./telegram-manager");
 
 const cronJobProcess = async (connection) => {
   try {
@@ -86,10 +87,10 @@ const cronJobProcess = async (connection) => {
   }
 };
 
-const runProcessItem = async (processItem, parameters) => {
+const runProcessItem = async (processItem, parameters, telegramManager) => {
   let resultProcessItem = {};
   try {
-    await telegramBot.appendMessage(`✅ ${processItem.description}\n`);
+    await telegramManager.appendMessage(`✅ ${processItem.description}\n`);
     switch (processItem.name) {
       case PROCESS_NAME.GENERATE_DATA: {
         if (processItem?.parameters) {
@@ -362,7 +363,7 @@ const runProcessItem = async (processItem, parameters) => {
       }
     }
   } catch (error) {
-    await telegramBot.appendMessage(
+    await telegramManager.appendMessage(
       `❌ ${processItem.description}: ${
         error?.response?.data?.message ||
         error?.message ||
@@ -375,7 +376,7 @@ const runProcessItem = async (processItem, parameters) => {
   return [parameters, resultProcessItem];
 };
 
-const runProcessWithName = async (name, connection) => {
+const runProcessWithName = async (name, connection, chatId) => {
   const ProcessDataModelWithConnection = ProcessDataModel(connection);
   const processValue = await ProcessDataModelWithConnection.findOne({
     name,
@@ -392,22 +393,27 @@ const runProcessWithName = async (name, connection) => {
   });
   const _idLog = result._id;
 
+  // Create object telegram manager
+  const bot = telegramBot.getBot();
+  const telegramManager = new TelegramManager(bot, chatId);
+
   if (processValue) {
     parameters = {};
     console.log(`Running: ${processValue.name}`);
-    await telegramBot.sendMessageToDefaultGroup(
+    await telegramManager.sendMessageAndUpdateMessageId(
       `--------------------------- \n🚁 Running: <b>${processValue.name}</b>\n`
     );
 
     const idIntervalSendMessage = setInterval(async () => {
-      await telegramBot.sendMessageCurrent(true);
+      await telegramManager.sendMessageCurrent(true);
     }, 500);
     try {
       for (const processItem of processValue.process) {
         let resultProcessItem = {};
         [parameters, resultProcessItem] = await runProcessItem(
           processItem,
-          parameters
+          parameters,
+          telegramManager
         );
 
         await processLogModel.findOneAndUpdate(
@@ -424,16 +430,16 @@ const runProcessWithName = async (name, connection) => {
           { new: true }
         );
       }
-      //await telegramBot.sendMessageCurrent();
+      await telegramBot.sendMessageCurrent(true);
     } catch (error) {
       console.log(error, "Error item");
-      await telegramBot.sendMessageCurrent();
+      await telegramManager.sendMessageCurrent(false);
     }
     console.log(JSON.stringify(parameters), "parameters");
     clearInterval(idIntervalSendMessage);
 
     setTimeout(async () => {
-      await telegramBot.appendMessageAndSend(
+      await telegramManager.appendMessageAndEditMessage(
         `Detail: <a href="${process.env.URL}/detail/${_idLog}">Click here</a>\n<b>Successful</b>`
       );
     }, 250);

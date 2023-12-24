@@ -63,7 +63,7 @@ async function startApp() {
     if (msg?.trim() === "/runall") {
       cronJobProcess(connection);
     } else if (msg?.substring(0, 5) == "/run:") {
-      runProcessWithName(msg?.substring(5).trim(), connection);
+      runProcessWithName(msg?.substring(5).trim(), connection, chatId);
     } else if (msg?.substring(0, 5) === "/list") {
       const allProcessData = await ProcessDataModelWithConnection.find({
         chatId,

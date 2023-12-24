@@ -63,7 +63,6 @@ class TelegramManager {
     if (!this.messageUpdated) {
       return;
     }
-    this.messageUpdated = false;
 
     // Check time to prevent send multiple request in times
     if (checkTime) {
@@ -73,6 +72,8 @@ class TelegramManager {
       }
       this.timeCheckSendMessage = now;
     }
+    this.messageUpdated = false;
+
     try {
       const t = await this.bot.telegram.editMessageText(
         this.chatId,
