@@ -47,7 +47,7 @@ Sequential CI is a web server that allows users to update CI configuration files
 
 ## Usage Instructions
 
-### Running Tests
+### Command
 To execute specific processes/tests, use the Telegram bot provided within this repository. Employ the following commands:🛸
 
 - 🏃‍♂️ `/run:(name or id of process)`: Executes the specified process.
@@ -67,3 +67,7 @@ To execute specific processes/tests, use the Telegram bot provided within this r
 
 
 Feel free to modify the JSON configuration to suit your testing needs by updating the process array with the necessary steps and their details.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
