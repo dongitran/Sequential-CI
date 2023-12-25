@@ -48,11 +48,13 @@ Sequential CI is a web server that allows users to update CI configuration files
 ## Usage Instructions
 
 ### Running Tests
-To execute specific processes/tests, use the Telegram bot provided within this repository. Employ the following commands:
+To execute specific processes/tests, use the Telegram bot provided within this repository. Employ the following commands:🛸
 
-- 🏃‍♂️ `/run:name-of-process`: Executes the specified process.
-- 📋 `/list`: Lists available processes.
+- 🏃‍♂️ `/run:(name or id of process)`: Executes the specified process.
 - ⏩ `/runall`: Runs all processes.
+- 📋 `/list`: Lists available processes.
+- 📦 `/clone:(id of process)`: Clone the process
+- ❌ `/delete:(id of process)`: Delete the process
 - ℹ️ `/help`: Displays available commands and their usage.
 
 ### Understanding the Configuration
