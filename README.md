@@ -5,6 +5,7 @@ Sequential CI is a web server that allows users to update CI configuration files
 ## Sample Configuration
 
 
+```json
 {
   "status": "active",
   "name": "name-of-process",
@@ -43,6 +44,7 @@ Sequential CI is a web server that allows users to update CI configuration files
     // Other process steps
   ]
 }
+```
 
 
 ## Usage Instructions
