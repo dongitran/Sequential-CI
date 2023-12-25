@@ -57,12 +57,12 @@ To execute specific processes/tests, use the Telegram bot provided within this r
 - ℹ️ `/help`: Displays available commands and their usage.
 
 ## Process Types
-- `generate-data`: Generates data via JavaScript code, either by direct assignment or JavaScript-based generation. The generated values are stored for subsequent use during execution.
-- `api`: Executes an API call using a cURL string, employing variables within the process. It interacts with the API and stores the result within the ongoing process.
-- `postgres`: Executes SQL queries, leveraging variables within the process to retrieve data from a PostgreSQL database and store it within the ongoing process.
-- `mongo`: Executes queries within a MongoDB database.
-- `validateJson`: Validates a JSON object derived from session variables.
-- `delay`: Introduces a time delay in milliseconds during the execution process.
+- 📊`generate-data`: Generates data via JavaScript code, either by direct assignment or JavaScript-based generation. The generated values are stored for subsequent use during execution.
+- 🌐`api`: Executes an API call using a cURL string, employing variables within the process. It interacts with the API and stores the result within the ongoing process.
+- 🐘`postgres`: Executes SQL queries, leveraging variables within the process to retrieve data from a PostgreSQL database and store it within the ongoing process.
+- 🍃`mongo`: Executes queries within a MongoDB database.
+- ✔️`validateJson`: Validates a JSON object derived from session variables.
+- ⏳`delay`: Introduces a time delay in milliseconds during the execution process.
 
 
 Feel free to modify the JSON configuration to suit your testing needs by updating the process array with the necessary steps and their details.
