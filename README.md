@@ -11,13 +11,34 @@ Sequential CI is a web server that allows users to update CI configuration files
   "process": [
     {
       "type": "generate-data",
-      "description": "Generate data ",
-      // Parameters for generating data
+      "description": "Generate data",
+      "parameters": {
+        "phoneNumber": "\"09\" + Math.floor(Math.random()*99999999).toString().padStart(8, \"0\")"
+      }
     },
     {
       "type": "api",
       "description": "Send API",
-      // Command to send the API
+      "curl": "curl --location 'http://localhost:3000/get/{parameters['id']}",
+      "parameters": {
+        "resultApi": null
+      }
+    },
+    {
+      "name": "postgres",
+      "description": "Get customer",
+      "query": "select * from customers where id = '{parameters['id']}'",
+      "config": {
+        "host": "0.0.0.0",
+        "port": "5432",
+        "username": "sequentialCi",
+        "password": "sequentialCi",
+        "db": "demoDb"
+      },
+      "parameters": {
+        "customer": null,
+        "customerId": "id"
+      }
     },
     // Other process steps
   ]
