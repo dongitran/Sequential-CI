@@ -1,11 +1,10 @@
 # Sequential CI 🤖 🚀
 
-Sequential CI is a web server that allows users to update CI configuration files in JSON format to execute various commands for API testing, Postgres querying, MongoDB operations, etc. Each process represents a session, enabling data retrieval to run other tests. Below is a sample configuration file used to execute tests:
+Sequential CI is a web server that allows users to update CI configuration files in JSON format to execute various commands for API testing, Postgres querying, MongoDB operations, and more. Each process represents a session, enabling data retrieval for subsequent tests. Below is a sample configuration file for test execution:
 
-## Sample Configuration
+## Sample Configuration of Process
 
 
-```json
 {
   "status": "active",
   "name": "name-of-process",
@@ -44,7 +43,6 @@ Sequential CI is a web server that allows users to update CI configuration files
     // Other process steps
   ]
 }
-```
 
 
 ## Usage Instructions
@@ -55,14 +53,14 @@ To execute specific processes/tests, use the Telegram bot provided within this r
 - 🏃‍♂️ `/run:(name or id of process)`: Executes the specified process.
 - ⏩ `/runall`: Runs all processes.
 - 📋 `/list`: Lists available processes.
-- 📦 `/clone:(id of process)`: Clone the process
-- ❌ `/delete:(id of process)`: Delete the process
+- 📦 `/clone:(id of process)`: Clone the process.
+- ❌ `/delete:(id of process)`: Delete the process.
 - ℹ️ `/help`: Displays available commands and their usage.
 
-## List of the Configuration
-- `generate-data`: Generates data through JavaScript code. It can assign values directly or generate them using JavaScript. The generated values are stored for subsequent use during execution.
-- `api`: Executes an API call using a cURL string, utilizing variables in the process. It interacts with the API and stores the result within the ongoing process.
-- `postgres`: Executes SQL queries, leveraging variables in the process, retrieves data from a PostgreSQL database, and stores it within the ongoing process.
+## Process Types
+- `generate-data`: Generates data via JavaScript code, either by direct assignment or JavaScript-based generation. The generated values are stored for subsequent use during execution.
+- `api`: Executes an API call using a cURL string, employing variables within the process. It interacts with the API and stores the result within the ongoing process.
+- `postgres`: Executes SQL queries, leveraging variables within the process to retrieve data from a PostgreSQL database and store it within the ongoing process.
 - `mongo`: Executes queries within a MongoDB database.
 - `validateJson`: Validates a JSON object derived from session variables.
 - `delay`: Introduces a time delay in milliseconds during the execution process.
