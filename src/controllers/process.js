@@ -377,24 +377,33 @@ const runProcessItem = async (processItem, parameters, telegramManager) => {
   return [parameters, resultProcessItem];
 };
 
-const runProcessWithName = async (name, connection, chatId) => {
+const runProcessWithName = async (nameOrId, connection, chatId) => {
   // Create object telegram manager
   const bot = telegramBot.getBot();
   const telegramManager = new TelegramManager(bot, chatId);
 
   // Get process
   const ProcessDataModelWithConnection = ProcessDataModel(connection);
-  const processValue = await ProcessDataModelWithConnection.findOne({
-    name,
+  let processValue = await ProcessDataModelWithConnection.findOne({
+    name: nameOrId,
     chatId,
     //status: PROCESS_STATUS.ACTIVE,
   });
 
   if (!processValue) {
-    await telegramManager.sendMessageAndUpdateMessageId(
-      `--------------------------- \n<b>${name}</b> not exists\n`
-    );
-    return;
+    if ((nameOrId.length = 24)) { // TODO: validate hex string
+      processValue = await ProcessDataModelWithConnection.findOne({
+        _id: new Types.ObjectId(nameOrId),
+        chatId,
+      });
+    }
+
+    if (!processValue) {
+      await telegramManager.sendMessageAndUpdateMessageId(
+        `--------------------------- \n<b>${nameOrId}</b> not exists\n`
+      );
+      return;
+    }
   }
 
   const processLogModel = ProcessLogModel(connection);
