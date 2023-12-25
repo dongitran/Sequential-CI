@@ -62,7 +62,7 @@ To execute specific processes/tests, use the Telegram bot provided within this r
 - 🐘`postgres`: Executes SQL queries, leveraging variables within the process to retrieve data from a PostgreSQL database and store it within the ongoing process.
 - 🍃`mongo`: Executes queries within a MongoDB database.
 - ✔️`validateJson`: Validates a JSON object derived from session variables.
-- ⏳`delay`: Introduces a time delay in milliseconds during the execution process.
+- ⏳`delay`: Implements a time delay in milliseconds during the execution process.
 
 
 Feel free to modify the JSON configuration to suit your testing needs by updating the process array with the necessary steps and their details.
