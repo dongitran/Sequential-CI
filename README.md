@@ -4,7 +4,7 @@ Sequential CI is a web server that allows users to update CI configuration files
 
 ## Sample Configuration
 
-```json
+
 {
   "status": "active",
   "name": "name-of-process",
@@ -43,7 +43,7 @@ Sequential CI is a web server that allows users to update CI configuration files
     // Other process steps
   ]
 }
-```
+
 
 ## Usage Instructions
 
@@ -57,13 +57,13 @@ To execute specific processes/tests, use the Telegram bot provided within this r
 - ❌ `/delete:(id of process)`: Delete the process
 - ℹ️ `/help`: Displays available commands and their usage.
 
-### Understanding the Configuration
-- ℹ️ `status`: Indicates the configuration's status.
-- ℹ️ `name`: Name of the configuration process.
-- ℹ️ `process`: Array containing individual steps of the testing process.
-- Each step includes:
-  - ℹ️ `type`: Process type (e.g., generate-data, api, delay, postgres, validateJson, mongo, etc.).
-  - ℹ️ `description`: Description of the step.
-  - Additional parameters or commands specific to each step.
+## List of the Configuration
+- `generate-data`: Generates data through JavaScript code. It can assign values directly or generate them using JavaScript. The generated values are stored for subsequent use during execution.
+- `api`: Executes an API call using a cURL string, utilizing variables in the process. It interacts with the API and stores the result within the ongoing process.
+- `postgres`: Executes SQL queries, leveraging variables in the process, retrieves data from a PostgreSQL database, and stores it within the ongoing process.
+- `mongo`: Executes queries within a MongoDB database.
+- `validateJson`: Validates a JSON object derived from session variables.
+- `delay`: Introduces a time delay in milliseconds during the execution process.
+
 
 Feel free to modify the JSON configuration to suit your testing needs by updating the process array with the necessary steps and their details.
