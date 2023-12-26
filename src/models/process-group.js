@@ -1,21 +1,20 @@
 const { Types, Schema } = require("mongoose");
 
-const ProcessData = new Schema({
+const ProcessGroup = new Schema({
   createdAt: Date,
   updatedAt: Date,
   deletedAt: Date || undefined || null,
   status: String,
   name: String,
   chatId: String,
-  cloneFrom: {
+  processDataId: {
     type: Types.ObjectId,
     ref: "sequential_ci_process_datas",
   },
-  process: Schema.Types.Mixed,
 });
 
-const ProcessDataModel = (connection) => {
-  return connection.model("sequential_ci_process_datas", ProcessData);
+const ProcessGroupModel = (connection) => {
+  return connection.model("sequential_ci_process_groups", ProcessGroup);
 };
 
-module.exports = { ProcessData, ProcessDataModel };
+module.exports = { ProcessGroup, ProcessGroupModel };

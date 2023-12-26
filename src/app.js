@@ -18,6 +18,10 @@ const { ProcessLogModel } = require("./models/process-log");
 const TelegramManager = require("./controllers/telegram-manager");
 const { getDataByKey } = require("./utils/common");
 const { MessageResponse } = require("./constants/message-response");
+const {
+  createGroup,
+  linkProcessToGroup,
+} = require("./controllers/process-group");
 
 async function startApp() {
   const connection = await connectToMongo(process.env.MONGO_URI);
@@ -107,6 +111,14 @@ async function startApp() {
       const command = msg?.substring(8)?.trim();
       const id = command?.split(" ")[0];
       await deleteProcess(id, connection, chatId);
+    } else if (msg?.substring(0, 13) === "/groupcreate:") {
+      const groupName = msg?.substring(13);
+      await createGroup(chatId, groupName, connection);
+    } else if (msg?.substring(0, 11) === "/grouplink:") {
+      const ids = msg?.substring(11).split("-");
+      const groupId = ids[0];
+      const processId = ids[1];
+      await linkProcessToGroup(chatId, connection, groupId, processId);
     }
   });
 
