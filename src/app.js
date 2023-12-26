@@ -22,6 +22,7 @@ const {
   createGroup,
   linkProcessToGroup,
 } = require("./controllers/process-group");
+const { Telegraf, Markup } = require("telegraf");
 
 async function startApp() {
   const connection = await connectToMongo(process.env.MONGO_URI);
@@ -67,6 +68,7 @@ async function startApp() {
 
   bot.on("message", async (ctx) => {
     console.log(ctx?.update?.message?.chat?.id, "ctxctx");
+    console.log(ctx?.update?.message?.reply_to_message, "ctxctx");
     const ProcessDataModelWithConnection = ProcessDataModel(connection);
     // Check command run process
     const chatId = ctx?.update?.message?.chat?.id;
@@ -114,11 +116,30 @@ async function startApp() {
     } else if (msg?.substring(0, 13) === "/groupcreate:") {
       const groupName = msg?.substring(13);
       await createGroup(chatId, groupName, connection);
-    } else if (msg?.substring(0, 11) === "/grouplink:") {
-      const ids = msg?.substring(11).split("-");
-      const groupId = ids[0];
-      const processId = ids[1];
-      await linkProcessToGroup(chatId, connection, groupId, processId);
+    } else if (msg?.substring(0, 10) === "/grouplink") {
+      //const ids = msg?.substring(11).split("-");
+      //const groupId = ids[0];
+      //const processId = ids[1];
+      //await linkProcessToGroup(chatId, connection, groupId, processId);
+
+      const replyKeyboard = Markup.keyboard([
+        ["Option 1"],
+        ["Option 3"],
+        ["Option 1"],
+        ["Option 3"],
+        ["Option 1"],
+        ["Option 3"],
+        ["Option 1"],
+        ["Option 3"],
+        ["Option 1"],
+        ["Option 3"],
+      ]);
+
+      // Lấy bàn phím được thiết lập
+      const keyboard = replyKeyboard.reply_markup;
+
+      // Gửi tin nhắn với bàn phím reply
+      return ctx.reply("Chọn một tùy chọn:", { reply_markup: keyboard });
     }
   });
 
