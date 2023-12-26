@@ -2,6 +2,7 @@ require("dotenv").config();
 const connectToMongo = require("../config/mongo");
 const { ProcessDataModel } = require("../models/process-data");
 const { PROCESS_STATUS } = require("../constants/process-data");
+const { Types } = require("mongoose");
 
 exports.createData = async (req, res) => {
   try {
@@ -73,5 +74,20 @@ exports.updateDataByName = async (req, res) => {
     res
       .status(400)
       .json({ message: "Error updating data", error: error.message });
+  }
+};
+
+exports.linkProcessToGroup = async (chatId, connection, processId, groupId) => {
+  try {
+    const processDataModel = ProcessDataModel(connection);
+
+    await processDataModel.findOneAndUpdate(
+      { _id: new Types.ObjectId(processId.toString()), chatId },
+      {
+        groupId: new Types.ObjectId(groupId.toString()),
+      }
+    );
+  } catch (error) {
+    console.log(error, "Link process to group error");
   }
 };

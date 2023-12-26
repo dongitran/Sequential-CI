@@ -12,6 +12,10 @@ const ProcessData = new Schema({
     ref: "sequential_ci_process_datas",
   },
   process: Schema.Types.Mixed,
+  groupId: {
+    type: Types.ObjectId,
+    ref: "sequential_ci_process_groups",
+  },
 });
 
 const ProcessDataModel = (connection) => {

@@ -30,33 +30,3 @@ exports.createGroup = async (chatId, name, connection) => {
     }
   }
 };
-
-exports.linkProcessToGroup = async (chatId, connection, groupId, processId) => {
-  let telegramManager = undefined;
-  try {
-    // Create object telegram manager
-    const bot = telegramBot.getBot();
-    telegramManager = new TelegramManager(bot, chatId);
-
-    const processGroupModel = ProcessGroupModel(connection);
-    const result = await processGroupModel.findOneAndUpdate(
-      { _id: new Types.ObjectId(groupId) },
-      {
-        updatedAt: new Date(),
-        processDataId: new Types.ObjectId(processId),
-      }
-    );
-    console.log(result, "result");
-
-    await telegramManager.sendMessageAndUpdateMessageId(
-      `🔭 <b>Link group with processId sucessful</b>\nId: <code>${result?._id}</code>\n`
-    );
-  } catch (error) {
-    console.log(error, "errorerror");
-    if (telegramManager) {
-      await telegramManager.sendMessageAndUpdateMessageId(
-        "❗️ Create group failed: " + error?.message || error
-      );
-    }
-  }
-};

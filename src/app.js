@@ -18,11 +18,13 @@ const { ProcessLogModel } = require("./models/process-log");
 const TelegramManager = require("./controllers/telegram-manager");
 const { getDataByKey } = require("./utils/common");
 const { MessageResponse } = require("./constants/message-response");
-const {
-  createGroup,
-  linkProcessToGroup,
-} = require("./controllers/process-group");
+const { createGroup } = require("./controllers/process-group");
 const { Telegraf, Markup } = require("telegraf");
+const { ProcessGroupModel } = require("./models/process-group");
+const {
+  ProcessGroupConfigStepModel,
+} = require("./models/process-group-config-step");
+const { linkProcessToGroup } = require("./controllers/process-data");
 
 async function startApp() {
   const connection = await connectToMongo(process.env.MONGO_URI);
@@ -67,12 +69,94 @@ async function startApp() {
   const bot = await telegramBot.init();
 
   bot.on("message", async (ctx) => {
-    console.log(ctx?.update?.message?.chat?.id, "ctxctx");
-    console.log(ctx?.update?.message?.reply_to_message, "ctxctx");
+    //console.log(ctx?.update?.message?.chat?.id, "ctxctx");
+    console.log(JSON.stringify(ctx), "123");
+    //.log(ctx?.update?.message?.reply_to_message, "ctxctx");
     const ProcessDataModelWithConnection = ProcessDataModel(connection);
     // Check command run process
     const chatId = ctx?.update?.message?.chat?.id;
     const msg = ctx?.update?.message?.text?.trim();
+    console.log(msg, "msgmsgmsg");
+
+    const replyToMessage = ctx?.update?.message?.reply_to_message;
+
+    if (replyToMessage) {
+      const messageIdReply = replyToMessage?.message_id;
+      const processGroupConfigStepModel =
+        ProcessGroupConfigStepModel(connection);
+      // Get config step
+      const processGroupConfigStep = await processGroupConfigStepModel.find({
+        messageId: messageIdReply,
+      });
+      const step = processGroupConfigStep[0].step;
+      if (step === "waiting-select-group") {
+        // Get group id from group name
+        const processGroupModel = ProcessGroupModel(connection);
+        const processGroup = await processGroupModel.find({
+          name: ctx?.update?.message?.text,
+        });
+        const groupId = processGroup[0]._id;
+        console.log(groupId, "processGroup");
+
+        // Get list process for user select
+        const processDataModel = ProcessDataModel(connection);
+        const processDatas = await processDataModel.find({ chatId });
+        const replyKeyboard = Markup.keyboard([
+          ...processDatas.map((item) => {
+            return [item?.name];
+          }),
+        ]);
+        const keyboard = replyKeyboard.reply_markup;
+        const result = await ctx.reply("Select process:", {
+          reply_markup: keyboard,
+        });
+
+        // Update process group config steps
+        await processGroupConfigStepModel.findOneAndUpdate(
+          {
+            messageId: messageIdReply,
+          },
+          {
+            messageId: result?.message_id,
+            groupId,
+            step: "waiting-select-process",
+          }
+        );
+      } else if (step === "waiting-select-process") {
+        const processDataModel = ProcessDataModel(connection);
+        const processDatas = await processDataModel.find({
+          name: ctx?.update?.message?.text,
+        });
+        const processDataId = processDatas[0]._id;
+
+        const processGroupConfigStepModel =
+          ProcessGroupConfigStepModel(connection);
+        // Update process group config steps
+        const result = await processGroupConfigStepModel.findOneAndUpdate(
+          {
+            messageId: messageIdReply,
+          },
+          {
+            processDataId,
+            step: "waiting-link",
+          }
+        );
+
+        await linkProcessToGroup(
+          chatId,
+          connection,
+          processDataId,
+          result?.groupId?.toString()
+        );
+
+        ctx.reply("🛩 Link process to group successful!", {
+          reply_markup: { remove_keyboard: true },
+        });
+      }
+
+      return;
+    }
+
     if (msg?.trim() === "/runall") {
       cronJobProcess(connection);
     } else if (msg?.substring(0, 5) == "/run:") {
@@ -117,29 +201,27 @@ async function startApp() {
       const groupName = msg?.substring(13);
       await createGroup(chatId, groupName, connection);
     } else if (msg?.substring(0, 10) === "/grouplink") {
-      //const ids = msg?.substring(11).split("-");
-      //const groupId = ids[0];
-      //const processId = ids[1];
-      //await linkProcessToGroup(chatId, connection, groupId, processId);
+      const processGroupModel = ProcessGroupModel(connection);
+      const processGroups = await processGroupModel.find({ chatId });
 
       const replyKeyboard = Markup.keyboard([
-        ["Option 1"],
-        ["Option 3"],
-        ["Option 1"],
-        ["Option 3"],
-        ["Option 1"],
-        ["Option 3"],
-        ["Option 1"],
-        ["Option 3"],
-        ["Option 1"],
-        ["Option 3"],
+        ...processGroups.map((item) => {
+          return [item?.name];
+        }),
       ]);
-
-      // Lấy bàn phím được thiết lập
       const keyboard = replyKeyboard.reply_markup;
+      const result = await ctx.reply("Select group:", {
+        reply_markup: keyboard,
+      });
+      console.log(result, "result1");
 
-      // Gửi tin nhắn với bàn phím reply
-      return ctx.reply("Chọn một tùy chọn:", { reply_markup: keyboard });
+      const processGroupConfigStepModel =
+        ProcessGroupConfigStepModel(connection);
+      await processGroupConfigStepModel.create({
+        createdAt: new Date(),
+        messageId: result?.message_id,
+        step: "waiting-select-group",
+      });
     }
   });
 
