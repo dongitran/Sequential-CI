@@ -1,10 +1,11 @@
 require("dotenv").config();
 const connectToMongo = require("../config/mongo");
 const { ProcessDataModel } = require("../models/process-data");
+const { PROCESS_STATUS } = require("../constants/process-data");
 
 exports.createData = async (req, res) => {
   try {
-    const { name, status } = req.body;
+    const { name, status, chatId } = req.body;
 
     // Validate data
     if (!name || !req.body.process) {
@@ -24,7 +25,8 @@ exports.createData = async (req, res) => {
       updatedAt: new Date(),
       name,
       process: req.body.process,
-      status: status || "inactive",
+      status: status || PROCESS_STATUS.INACTIVE,
+      chatId,
     });
 
     const savedData = await newProcessData.save();
