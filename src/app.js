@@ -19,12 +19,16 @@ const TelegramManager = require("./controllers/telegram-manager");
 const { getDataByKey } = require("./utils/common");
 const { MessageResponse } = require("./constants/message-response");
 const { createGroup } = require("./controllers/process-group");
-const { Telegraf, Markup } = require("telegraf");
+const { Markup } = require("telegraf");
 const { ProcessGroupModel } = require("./models/process-group");
 const {
   ProcessGroupConfigStepModel,
 } = require("./models/process-group-config-step");
 const { linkProcessToGroup } = require("./controllers/process-data");
+const { isEmpty } = require("lodash");
+const {
+  getProcessDataWithGroup,
+} = require("./functions/get-process-data-with-group");
 
 async function startApp() {
   const connection = await connectToMongo(process.env.MONGO_URI);
@@ -76,7 +80,6 @@ async function startApp() {
     // Check command run process
     const chatId = ctx?.update?.message?.chat?.id;
     const msg = ctx?.update?.message?.text?.trim();
-    console.log(msg, "msgmsgmsg");
 
     const replyToMessage = ctx?.update?.message?.reply_to_message;
 
@@ -93,10 +96,9 @@ async function startApp() {
         // Get group id from group name
         const processGroupModel = ProcessGroupModel(connection);
         const processGroup = await processGroupModel.find({
-          name: ctx?.update?.message?.text,
+          name: ctx?.update?.message?.text?.trim(),
         });
         const groupId = processGroup[0]._id;
-        console.log(groupId, "processGroup");
 
         // Get list process for user select
         const processDataModel = ProcessDataModel(connection);
@@ -162,20 +164,36 @@ async function startApp() {
     } else if (msg?.substring(0, 5) == "/run:") {
       runProcessWithName(msg?.substring(5).trim(), connection, chatId);
     } else if (msg?.substring(0, 5) === "/list") {
-      const allProcessData = await ProcessDataModelWithConnection.find({
-        chatId,
-        $or: [{ deletedAt: { $eq: null } }, { deletedAt: { $exists: false } }],
-      });
+      const result = await getProcessDataWithGroup(chatId, connection);
       const emoji = "⚙️";
-      const replyMessage = allProcessData
-        .map(
-          (item) =>
-            `${emoji} <b>${
+      const listResponse = [];
+      if (result?.group && !isEmpty(result?.group)) {
+        result.group.forEach((item) => {
+          listResponse.push(`⭐️ ${item.name}:`);
+          if (!isEmpty(item?.processList)) {
+            item.processList.forEach((item) => {
+              listResponse.push(
+                `     ${emoji} <b>${
+                  item.name
+                }</b> \n     Id: <code>${item._id.toString()}</code>`
+              );
+            });
+          }
+        });
+      }
+      if (result?.notAssignGroup && !isEmpty(result?.notAssignGroup)) {
+        listResponse.push(`\n👽 Not assign group:`);
+        result.notAssignGroup.forEach((item) => {
+          listResponse.push(
+            `     ${emoji} <b>${
               item.name
-            }</b> \n Id: <code>${item._id.toString()}</code>`
-        )
-        .join("\n");
-      await ctx.replyWithHTML(replyMessage || MessageResponse.TRY_IT);
+            }</b> \n     Id: <code>${item._id.toString()}</code>`
+          );
+        });
+      }
+      await ctx.replyWithHTML(
+        listResponse.join("\n") || MessageResponse.TRY_IT
+      );
     } else if (msg?.substring(0, 5) === "/help") {
       const emojiList = "📊";
       const emojiRun = "🚀";
@@ -198,7 +216,7 @@ async function startApp() {
       const id = command?.split(" ")[0];
       await deleteProcess(id, connection, chatId);
     } else if (msg?.substring(0, 13) === "/groupcreate:") {
-      const groupName = msg?.substring(13);
+      const groupName = msg?.substring(13)?.trim();
       await createGroup(chatId, groupName, connection);
     } else if (msg?.substring(0, 10) === "/grouplink") {
       const processGroupModel = ProcessGroupModel(connection);
@@ -213,7 +231,6 @@ async function startApp() {
       const result = await ctx.reply("Select group:", {
         reply_markup: keyboard,
       });
-      console.log(result, "result1");
 
       const processGroupConfigStepModel =
         ProcessGroupConfigStepModel(connection);

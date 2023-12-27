@@ -7,9 +7,6 @@ const ProcessGroup = new Schema({
   status: String,
   name: String,
   chatId: String,
-  processDataIds: [
-    { type: Types.ObjectId, ref: "sequential_ci_process_datas" },
-  ],
 });
 
 const ProcessGroupModel = (connection) => {
