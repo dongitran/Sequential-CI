@@ -15,7 +15,6 @@ const app = express();
 const cron = require("node-cron");
 const { ProcessDataModel } = require("./models/process-data");
 const { ProcessLogModel } = require("./models/process-log");
-const TelegramManager = require("./controllers/telegram-manager");
 const { getDataByKey } = require("./utils/common");
 const { MessageResponse } = require("./constants/message-response");
 const { createGroup } = require("./controllers/process-group");
@@ -74,9 +73,6 @@ async function startApp() {
 
   bot.on("message", async (ctx) => {
     //console.log(ctx?.update?.message?.chat?.id, "ctxctx");
-    console.log(JSON.stringify(ctx), "123");
-    //.log(ctx?.update?.message?.reply_to_message, "ctxctx");
-    const ProcessDataModelWithConnection = ProcessDataModel(connection);
     // Check command run process
     const chatId = ctx?.update?.message?.chat?.id;
     const msg = ctx?.update?.message?.text?.trim();
@@ -102,7 +98,10 @@ async function startApp() {
 
         // Get list process for user select
         const processDataModel = ProcessDataModel(connection);
-        const processDatas = await processDataModel.find({ chatId });
+        const processDatas = await processDataModel.find({
+          chatId,
+          $or: [{ groupId: { $exists: false } }, { groupId: null }],
+        });
         const replyKeyboard = Markup.keyboard([
           ...processDatas.map((item) => {
             return [item?.name];
@@ -182,7 +181,7 @@ async function startApp() {
         });
       }
       if (result?.notAssignGroup && !isEmpty(result?.notAssignGroup)) {
-        listResponse.push(`\n👽 Not assign group:`);
+        listResponse.push(`\n👽 Not assigned group:`);
         result.notAssignGroup.forEach((item) => {
           listResponse.push(
             `     ${emoji} <b>${
