@@ -1,4 +1,4 @@
-const { get, omit, find } = require("lodash");
+const { get, omit, find, isEmpty } = require("lodash");
 const { v4: uuidv4 } = require("uuid");
 const { Client } = require("pg");
 const mysql = require("mysql2/promise");
@@ -88,13 +88,21 @@ const cronJobProcess = async (connection) => {
   }
 };
 
-const runProcessItem = async (processItem, parameters, telegramManager) => {
+const runProcessItem = async (
+  processItem,
+  parameters,
+  telegramManager,
+  connection
+) => {
   let resultProcessItem = {};
+  let subProcess = [];
   try {
     // Get emoji of process
     const emoji = find(PROCESS_NAME, { NAME: processItem.name })?.EMOJI || "🦠";
+    const isSubProcess = processItem?.isSubProcess;
+    const generateSpace = (isSubProcess) => (isSubProcess ? " ".repeat(8) : "");
     await telegramManager.appendMessage(
-      `${emoji} ${processItem.description}\n`
+      `${generateSpace(isSubProcess)}${emoji} ${processItem.description}\n`
     );
 
     switch (processItem.name) {
@@ -367,7 +375,15 @@ const runProcessItem = async (processItem, parameters, telegramManager) => {
         }
         break;
       }
-      case PROCESS_NAME.SUBPROCESS.NAME.NAME: {
+      case PROCESS_NAME.SUBPROCESS.NAME: {
+        const rocessDataModel = ProcessDataModel(connection);
+        const processData = await rocessDataModel.findOne({
+          _id: new Types.ObjectId(processItem.processId),
+          //chatId,
+          //status: PROCESS_STATUS.ACTIVE,
+          // TODO: add condition
+        });
+        subProcess = processData?.process;
         break;
       }
     }
@@ -382,7 +398,7 @@ const runProcessItem = async (processItem, parameters, telegramManager) => {
     throw error;
   }
 
-  return [parameters, resultProcessItem];
+  return [parameters, resultProcessItem, subProcess];
 };
 
 const runProcessWithName = async (nameOrId, connection, chatId) => {
@@ -431,20 +447,37 @@ const runProcessWithName = async (nameOrId, connection, chatId) => {
     await telegramManager.sendMessageAndUpdateMessageId(
       `--------------------------- \n🚁 Running: <b>${
         processValue.name
-      }</b>\nId: <code>${processValue._id.toString()}</code>\n`
+      }</b>\nId: <code>${processValue._id.toString()}</code>\n---------------------------\n`
     );
 
     const idIntervalSendMessage = setInterval(async () => {
       await telegramManager.sendMessageCurrent(true);
     }, 500);
     try {
-      for (const processItem of processValue.process) {
-        let resultProcessItem = {};
-        [parameters, resultProcessItem] = await runProcessItem(
+      for (let index = 0; index < processValue.process.length; index++) {
+        const processItem = processValue.process[index];
+        let resultProcessItem = {},
+          subProcess;
+
+        [parameters, resultProcessItem, subProcess] = await runProcessItem(
           processItem,
           parameters,
-          telegramManager
+          telegramManager,
+          connection
         );
+
+        if (!isEmpty(subProcess)) {
+          // Add mark subprocess with flag subProcess: true
+          subProcess = subProcess.map((item) => ({
+            ...item,
+            isSubProcess: true,
+          }));
+          processValue.process = [
+            ...processValue.process.slice(0, index + 1),
+            ...subProcess,
+            ...processValue.process.slice(index + 1),
+          ];
+        }
 
         await processLogModel.findOneAndUpdate(
           { _id: _idLog },
