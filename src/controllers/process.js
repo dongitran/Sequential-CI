@@ -1,4 +1,4 @@
-const { get, omit } = require("lodash");
+const { get, omit, find } = require("lodash");
 const { v4: uuidv4 } = require("uuid");
 const { Client } = require("pg");
 const mysql = require("mysql2/promise");
@@ -91,9 +91,14 @@ const cronJobProcess = async (connection) => {
 const runProcessItem = async (processItem, parameters, telegramManager) => {
   let resultProcessItem = {};
   try {
-    await telegramManager.appendMessage(`✅ ${processItem.description}\n`);
+    // Get emoji of process
+    const emoji = find(PROCESS_NAME, { NAME: processItem.name })?.EMOJI || "🦠";
+    await telegramManager.appendMessage(
+      `${emoji} ${processItem.description}\n`
+    );
+
     switch (processItem.name) {
-      case PROCESS_NAME.GENERATE_DATA: {
+      case PROCESS_NAME.GENERATE_DATA.NAME: {
         if (processItem?.parameters) {
           for (const parameterKey of Object.keys(processItem.parameters)) {
             let commandString = processItem.parameters[parameterKey];
@@ -110,11 +115,11 @@ const runProcessItem = async (processItem, parameters, telegramManager) => {
         }
         break;
       }
-      case PROCESS_NAME.DELAY: {
+      case PROCESS_NAME.DELAY.NAME: {
         await delayWithAsync(Number(processItem.timeMs));
         break;
       }
-      case PROCESS_NAME.API: {
+      case PROCESS_NAME.API.NAME: {
         let updatedCurl = processItem.curl;
         Object.keys(parameters).forEach((key) => {
           const regex = new RegExp(`{parameters\\['${key}']}`, "g");
@@ -159,7 +164,7 @@ const runProcessItem = async (processItem, parameters, telegramManager) => {
         }
         break;
       }
-      case PROCESS_NAME.POSTGRES: {
+      case PROCESS_NAME.POSTGRES.NAME: {
         const client = new Client({
           host: processItem.config.host,
           database: processItem.config.db,
@@ -216,7 +221,7 @@ const runProcessItem = async (processItem, parameters, telegramManager) => {
         }
         break;
       }
-      case PROCESS_NAME.MYSQL: {
+      case PROCESS_NAME.MYSQL.NAME: {
         let isConnected = false;
         let result;
         let connection;
@@ -274,7 +279,7 @@ const runProcessItem = async (processItem, parameters, telegramManager) => {
         }
         break;
       }
-      case PROCESS_NAME.MONGO: {
+      case PROCESS_NAME.MONGO.NAME: {
         try {
           let query = processItem.query;
           Object.keys(parameters).forEach((key) => {
@@ -324,7 +329,7 @@ const runProcessItem = async (processItem, parameters, telegramManager) => {
 
         break;
       }
-      case PROCESS_NAME.VALIDATE_JSON: {
+      case PROCESS_NAME.VALIDATE_JSON.NAME: {
         let schema;
         if (processItem.version === "1") {
           let schemaString = JSON.stringify(processItem.content);
@@ -362,6 +367,9 @@ const runProcessItem = async (processItem, parameters, telegramManager) => {
         }
         break;
       }
+      case PROCESS_NAME.SUBPROCESS.NAME.NAME: {
+        break;
+      }
     }
   } catch (error) {
     await telegramManager.appendMessage(
@@ -391,7 +399,8 @@ const runProcessWithName = async (nameOrId, connection, chatId) => {
   });
 
   if (!processValue) {
-    if ((nameOrId.length = 24)) { // TODO: validate hex string
+    if ((nameOrId.length = 24)) {
+      // TODO: validate hex string
       processValue = await ProcessDataModelWithConnection.findOne({
         _id: new Types.ObjectId(nameOrId),
         chatId,

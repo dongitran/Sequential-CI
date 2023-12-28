@@ -1,11 +1,36 @@
 const PROCESS_NAME = {
-  GENERATE_DATA: "generate-data",
-  DELAY: "delay",
-  API: "api",
-  POSTGRES: "postgres",
-  MYSQL: "mysql",
-  MONGO: "mongo",
-  VALIDATE_JSON: "validateJson",
+  GENERATE_DATA: {
+    NAME: "generate-data",
+    EMOJI: "📊",
+  },
+  DELAY: {
+    NAME: "delay",
+    EMOJI: "⏳",
+  },
+  API: {
+    NAME: "api",
+    EMOJI: "🌐",
+  },
+  POSTGRES: {
+    NAME: "postgres",
+    EMOJI: "🐘",
+  },
+  MYSQL: {
+    NAME: "mysql",
+    EMOJI: "🛢️",
+  },
+  MONGO: {
+    NAME: "mongo",
+    EMOJI: "🍃",
+  },
+  VALIDATE_JSON: {
+    NAME: "validateJson",
+    EMOJI: "🎯",
+  },
+  SUBPROCESS: {
+    NAME: "subprocess",
+    EMOJI: "⚙️",
+  },
 };
 
 const PROCESS_STATUS = {
