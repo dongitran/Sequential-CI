@@ -16,24 +16,29 @@ const { PROCESS_LOG_STATUS } = require("../constants/process-log");
 const TelegramManager = require("./telegram-manager");
 const { Types } = require("mongoose");
 
-const cronJobProcess = async (connection) => {
+const cronJobProcess = async (connection, chatId) => {
   try {
+    // Create object telegram manager
+    const bot = telegramBot.getBot();
+    const telegramManager = new TelegramManager(bot, chatId);
+
     const processDataModel = ProcessDataModel(connection);
     const allProcessData = await processDataModel.find({
+      chatId,
       status: PROCESS_STATUS.ACTIVE,
     });
 
-    await telegramBot.sendMessageToDefaultGroup(
+    await telegramManager.sendMessageAndUpdateMessageId(
       "🛸 <b>Start running all process</b>\n"
     );
 
     const idIntervalSendMessage = setInterval(async () => {
-      //await telegramBot.sendMessageCurrent(true);
-    }, 3500);
+      await telegramManager.sendMessageCurrent(true);
+    }, 1500);
     for (const processValue of allProcessData) {
       let parameters = {};
       console.log(`Running: ${processValue.name}`);
-      await telegramBot.sendMessageToDefaultGroup(
+      await telegramManager.sendMessageAndUpdateMessageId(
         `--------------------------- \n🚁 Running: <b>${processValue.name}</b>\n`
       );
 
@@ -48,11 +53,28 @@ const cronJobProcess = async (connection) => {
       const _idLog = result._id;
 
       try {
-        for (const processItem of processValue.process) {
-          [parameters, resultProcessItem] = await runProcessItem(
+        for (let index = 0; index < processValue.process.length; index++) {
+          const processItem = processValue.process[index];
+          let subProcess;
+          [parameters, resultProcessItem, subProcess] = await runProcessItem(
             processItem,
-            parameters
+            parameters,
+            telegramManager,
+            connection
           );
+
+          if (!isEmpty(subProcess)) {
+            // Add mark subprocess with flag subProcess: true
+            subProcess = subProcess.map((item) => ({
+              ...item,
+              isSubProcess: true,
+            }));
+            processValue.process = [
+              ...processValue.process.slice(0, index + 1),
+              ...subProcess,
+              ...processValue.process.slice(index + 1),
+            ];
+          }
 
           await processLogModel.findOneAndUpdate(
             { _id: _idLog },
@@ -68,20 +90,19 @@ const cronJobProcess = async (connection) => {
             { new: true }
           );
         }
-        await telegramBot.appendMessage(
-          `Detail: <a href="${process.env.URL}/detail/${_idLog}">Click here</a>\n`
-        );
-        await telegramBot.sendMessageCurrent();
       } catch (error) {
         console.log(error, "Error item");
-        await telegramBot.sendMessageCurrent();
       }
+
+      await telegramManager.appendMessageAndEditMessage(
+        `Detail: <a href="${process.env.URL}/detail/${_idLog}">Click here</a>\n`
+      );
       console.log(JSON.stringify(parameters), "parameters");
     }
     clearInterval(idIntervalSendMessage);
 
     setTimeout(async () => {
-      await telegramBot.appendMessageAndSend("<b>Successful</b>");
+      await telegramManager.appendMessageAndEditMessage("<b>Successful</b>");
     }, 250);
   } catch (error) {
     console.log(error, "Error process");

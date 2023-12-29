@@ -159,7 +159,7 @@ async function startApp() {
     }
 
     if (msg?.trim() === "/runall") {
-      cronJobProcess(connection);
+      cronJobProcess(connection, chatId);
     } else if (msg?.substring(0, 5) == "/run:") {
       runProcessWithName(msg?.substring(5).trim(), connection, chatId);
     } else if (msg?.substring(0, 5) === "/list") {
@@ -243,7 +243,7 @@ async function startApp() {
 
   //  await test();
   cron.schedule("*/15 * * * *", async () => {
-    // await cronJobProcess(connection);
+    await cronJobProcess(connection);
   });
 }
 
