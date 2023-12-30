@@ -54,6 +54,8 @@ To execute specific processes/tests, use the Telegram bot provided within this r
 - 📋 `/list`: Lists available processes.
 - 📦 `/clone:(id of process)`: Clone the process.
 - ❌ `/delete:(id of process)`: Delete the process.
+- 🧩 `/groupcreate:(name of group)`: Create group to link process.
+- 🌸 `/grouplink`: Execute link the process to group.
 - ℹ️ `/help`: Displays available commands and their usage.
 
 ## Process Types
