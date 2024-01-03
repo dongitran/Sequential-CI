@@ -243,7 +243,7 @@ async function startApp() {
 
   //  await test();
   cron.schedule("*/15 * * * *", async () => {
-    await cronJobProcess(connection);
+    await cronJobProcess(connection, process.env.TELEGRAM_GROUP_ID);
   });
 }
 

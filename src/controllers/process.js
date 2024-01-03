@@ -39,7 +39,9 @@ const cronJobProcess = async (connection, chatId) => {
       let parameters = {};
       console.log(`Running: ${processValue.name}`);
       await telegramManager.sendMessageAndUpdateMessageId(
-        `--------------------------- \n🚁 Running: <b>${processValue.name}</b>\n`
+        `--------------------------- \n🚁 Running: <b>${
+          processValue.name
+        }</b>\nId: <code>${processValue._id.toString()}</code>\n---------------------------\n`
       );
 
       const processLogModel = ProcessLogModel(connection);
@@ -98,6 +100,7 @@ const cronJobProcess = async (connection, chatId) => {
         `Detail: <a href="${process.env.URL}/detail/${_idLog}">Click here</a>\n`
       );
       console.log(JSON.stringify(parameters), "parameters");
+      await delayWithAsync(3000);
     }
     clearInterval(idIntervalSendMessage);
 
