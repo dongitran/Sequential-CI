@@ -172,9 +172,9 @@ async function startApp() {
           if (!isEmpty(item?.processList)) {
             item.processList.forEach((item) => {
               listResponse.push(
-                `     ${emoji} <b>${
+                `     ${emoji} <code><b>${
                   item.name
-                }</b> \n     Id: <code>${item._id.toString()}</code>`
+                }</b></code>`
               );
             });
           }
@@ -184,9 +184,9 @@ async function startApp() {
         listResponse.push(`\n👽 Not assigned group:`);
         result.notAssignGroup.forEach((item) => {
           listResponse.push(
-            `     ${emoji} <b>${
+            `     ${emoji} <code><b>${
               item.name
-            }</b> \n     Id: <code>${item._id.toString()}</code>`
+            }</b></code>`
           );
         });
       }
@@ -243,7 +243,7 @@ async function startApp() {
 
   //  await test();
   cron.schedule("*/15 * * * *", async () => {
-    await cronJobProcess(connection, process.env.TELEGRAM_GROUP_ID);
+    // await cronJobProcess(connection, process.env.TELEGRAM_GROUP_ID);
   });
 }
 
