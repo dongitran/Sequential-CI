@@ -9,8 +9,8 @@ const {
   runProcessWithName,
   cloneProcess,
   deleteProcess,
-} = require("./controllers/process");
-const telegramBot = require("./controllers/telegram-bot");
+} = require("./modules/process");
+const telegramBot = require("./modules/telegram-bot");
 const app = express();
 const cron = require("node-cron");
 const { ProcessDataModel } = require("./models/process-data");
@@ -172,9 +172,7 @@ async function startApp() {
           if (!isEmpty(item?.processList)) {
             item.processList.forEach((item) => {
               listResponse.push(
-                `     ${emoji} <code><b>${
-                  item.name
-                }</b></code>`
+                `     ${emoji} <code><b>${item.name}</b></code>`
               );
             });
           }
@@ -183,11 +181,7 @@ async function startApp() {
       if (result?.notAssignGroup && !isEmpty(result?.notAssignGroup)) {
         listResponse.push(`\n👽 Not assigned group:`);
         result.notAssignGroup.forEach((item) => {
-          listResponse.push(
-            `     ${emoji} <code><b>${
-              item.name
-            }</b></code>`
-          );
+          listResponse.push(`     ${emoji} <code><b>${item.name}</b></code>`);
         });
       }
       await ctx.replyWithHTML(

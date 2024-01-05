@@ -1,7 +1,6 @@
 const { ProcessGroupModel } = require("../models/process-group");
-const TelegramManager = require("./telegram-manager");
-const telegramBot = require("./telegram-bot");
-const { Types } = require("mongoose");
+const TelegramManager = require("../modules/telegram-manager");
+const telegramBot = require("../modules/telegram-bot");
 
 exports.createGroup = async (chatId, name, connection) => {
   let telegramManager = undefined;
