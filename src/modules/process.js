@@ -165,7 +165,12 @@ const runProcessItem = async (
 
         const requestOptions = parseCurlString(updatedCurl);
 
-        const result = await performRequest(requestOptions);
+        let result;
+        try {
+          result = await performRequest(requestOptions);
+        } catch (error) {
+          result = error?.response?.data;
+        }
 
         if (processItem?.parameters) {
           for (const parameterKey of Object.keys(processItem.parameters)) {
@@ -421,6 +426,9 @@ const runProcessItem = async (
         }
 
         // TODO: check if value received is undefined
+        if (!parameters[processItem["variable"]]) {
+          throw "Data not found to validate";
+        }
         const { error, value } = schema.validate(
           parameters[processItem["variable"]],
           { allowUnknown: true }
