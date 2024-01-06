@@ -23,6 +23,10 @@ const PROCESS_NAME = {
     NAME: "mongo",
     EMOJI: "🍃",
   },
+  KAFKA: {
+    NAME: "kafka",
+    EMOJI: "📬",
+  },
   VALIDATE_JSON: {
     NAME: "validateJson",
     EMOJI: "🎯",

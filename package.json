@@ -23,6 +23,7 @@
     "form-data": "^4.0.0",
     "joi": "^17.11.0",
     "json-formatter-js": "^2.3.4",
+    "kafkajs": "^2.2.4",
     "lodash": "^4.17.21",
     "mongoose": "^8.0.3",
     "mysql": "^2.18.1",

@@ -14,6 +14,7 @@ const connectToMongo = require("../config/mongo");
 const { ProcessLogModel } = require("../models/process-log");
 const { PROCESS_LOG_STATUS } = require("../constants/process-log");
 const TelegramManager = require("./telegram-manager");
+const KafkaMessage = require("./kafka");
 const { Types } = require("mongoose");
 
 const cronJobProcess = async (connection, chatId) => {
@@ -354,6 +355,25 @@ const runProcessItem = async (
               }
             }
           }
+        } catch (error) {
+          throw error;
+        } finally {
+        }
+
+        break;
+      }
+      case PROCESS_NAME.KAFKA.NAME: {
+        try {
+          let query = processItem.query;
+          Object.keys(parameters).forEach((key) => {
+            const regex = new RegExp(`{parameters\\['${key}']}`, "g");
+            query = query.replace(regex, parameters[key]);
+          });
+
+          const brokers = processItem.config.brokers;
+          const kafkaMessage = new KafkaMessage(brokers);
+
+          kafkaMessage.sendMessage(processItem.topic, processItem.message);
         } catch (error) {
           throw error;
         } finally {

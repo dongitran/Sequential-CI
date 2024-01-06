@@ -19,6 +19,7 @@ async function performRequest(requestOptions) {
       requestOptions.data = formData;
     }
 
+    console.log(requestOptions.data, "requestOptions.data");
     const response = await axios({
       method,
       url,
