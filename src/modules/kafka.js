@@ -19,14 +19,15 @@ class KafkaMessenger {
   /**
    * Send message to Kafka
    * @param {string} topic - Kafka topic
+   * @param {string | number} key - Message key
    * @param {string} value - Message content
    */
-  async sendMessage(topic, value) {
+  async sendMessage(topic, key, value) {
     try {
       await this.producer.connect();
 
       const message = {
-        key: new Date().getTime().toString(),
+        key: key.toString(),
         value: value.toString(),
       };
 

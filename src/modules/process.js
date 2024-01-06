@@ -324,7 +324,13 @@ const runProcessItem = async (
 
           const collection = connection.collection(processItem?.collection);
 
-          const result = await collection.findOne(JSON.parse(query));
+          let result;
+          if (processItem?.type === "insert") {
+            console.log(query, "insert");
+            result = await collection.insertOne(JSON.parse(query));
+          } else {
+            result = await collection.findOne(JSON.parse(query));
+          }
 
           if (processItem?.parameters) {
             for (const parameterKey of Object.keys(processItem.parameters)) {
@@ -364,16 +370,21 @@ const runProcessItem = async (
       }
       case PROCESS_NAME.KAFKA.NAME: {
         try {
-          let query = processItem.query;
+          let message = processItem.message;
           Object.keys(parameters).forEach((key) => {
             const regex = new RegExp(`{parameters\\['${key}']}`, "g");
-            query = query.replace(regex, parameters[key]);
+            message = message.replace(regex, parameters[key]);
+          });
+          let keyMessage = processItem.key;
+          Object.keys(parameters).forEach((key) => {
+            const regex = new RegExp(`{parameters\\['${key}']}`, "g");
+            keyMessage = keyMessage.replace(regex, parameters[key]);
           });
 
           const brokers = processItem.config.brokers;
           const kafkaMessage = new KafkaMessage(brokers);
 
-          kafkaMessage.sendMessage(processItem.topic, processItem.message);
+          kafkaMessage.sendMessage(processItem.topic, keyMessage, message);
         } catch (error) {
           throw error;
         } finally {
