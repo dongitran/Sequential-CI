@@ -73,171 +73,175 @@ async function startApp() {
 
   bot.on("message", async (ctx) => {
     //console.log(ctx?.update?.message?.chat?.id, "ctxctx");
-    // Check command run process
-    const chatId = ctx?.update?.message?.chat?.id;
-    const msg = ctx?.update?.message?.text?.trim();
+    try {
+      // Check command run process
+      const chatId = ctx?.update?.message?.chat?.id;
+      const msg = ctx?.update?.message?.text?.trim();
 
-    const replyToMessage = ctx?.update?.message?.reply_to_message;
+      const replyToMessage = ctx?.update?.message?.reply_to_message;
 
-    if (replyToMessage) {
-      const messageIdReply = replyToMessage?.message_id;
-      const processGroupConfigStepModel =
-        ProcessGroupConfigStepModel(connection);
-      // Get config step
-      const processGroupConfigStep = await processGroupConfigStepModel.find({
-        messageId: messageIdReply,
-      });
-      const step = processGroupConfigStep[0].step;
-      if (step === "waiting-select-group") {
-        // Get group id from group name
+      if (replyToMessage) {
+        const messageIdReply = replyToMessage?.message_id;
+        const processGroupConfigStepModel =
+          ProcessGroupConfigStepModel(connection);
+        // Get config step
+        const processGroupConfigStep = await processGroupConfigStepModel.find({
+          messageId: messageIdReply,
+        });
+        const step = processGroupConfigStep[0]?.step;
+        if (step === "waiting-select-group") {
+          // Get group id from group name
+          const processGroupModel = ProcessGroupModel(connection);
+          const processGroup = await processGroupModel.find({
+            name: ctx?.update?.message?.text?.trim(),
+          });
+          const groupId = processGroup[0]._id;
+
+          // Get list process for user select
+          const processDataModel = ProcessDataModel(connection);
+          const processDatas = await processDataModel.find({
+            chatId,
+            $or: [{ groupId: { $exists: false } }, { groupId: null }],
+          });
+          const replyKeyboard = Markup.keyboard([
+            ...processDatas.map((item) => {
+              return [item?.name];
+            }),
+          ]);
+          const keyboard = replyKeyboard.reply_markup;
+          const result = await ctx.reply("Select process:", {
+            reply_markup: keyboard,
+          });
+
+          // Update process group config steps
+          await processGroupConfigStepModel.findOneAndUpdate(
+            {
+              messageId: messageIdReply,
+            },
+            {
+              messageId: result?.message_id,
+              groupId,
+              step: "waiting-select-process",
+            }
+          );
+        } else if (step === "waiting-select-process") {
+          const processDataModel = ProcessDataModel(connection);
+          const processDatas = await processDataModel.find({
+            name: ctx?.update?.message?.text,
+          });
+          const processDataId = processDatas[0]._id;
+
+          const processGroupConfigStepModel =
+            ProcessGroupConfigStepModel(connection);
+          // Update process group config steps
+          const result = await processGroupConfigStepModel.findOneAndUpdate(
+            {
+              messageId: messageIdReply,
+            },
+            {
+              processDataId,
+              step: "waiting-link",
+            }
+          );
+
+          await linkProcessToGroup(
+            chatId,
+            connection,
+            processDataId,
+            result?.groupId?.toString()
+          );
+
+          ctx.reply("🛩 Link process to group successful!", {
+            reply_markup: { remove_keyboard: true },
+          });
+        }
+
+        return;
+      }
+
+      if (msg?.trim() === "/runall") {
+        cronJobProcess(connection, chatId);
+      } else if (msg?.substring(0, 5) == "/run:") {
+        runProcessWithName(msg?.substring(5).trim(), connection, chatId);
+      } else if (msg?.substring(0, 5) === "/list") {
+        const result = await getProcessDataWithGroup(chatId, connection);
+        const emoji = "⚙️";
+        const listResponse = [];
+        if (result?.group && !isEmpty(result?.group)) {
+          result.group.forEach((item) => {
+            listResponse.push(`⭐️ ${item.name}:`);
+            if (!isEmpty(item?.processList)) {
+              item.processList.forEach((item) => {
+                listResponse.push(
+                  `     ${emoji} <code><b>${item.name}</b></code>`
+                );
+              });
+            }
+          });
+        }
+        if (result?.notAssignGroup && !isEmpty(result?.notAssignGroup)) {
+          listResponse.push(`\n👽 Not assigned group:`);
+          result.notAssignGroup.forEach((item) => {
+            listResponse.push(`     ${emoji} <code><b>${item.name}</b></code>`);
+          });
+        }
+        await ctx.replyWithHTML(
+          listResponse.join("\n") || MessageResponse.TRY_IT
+        );
+      } else if (msg?.substring(0, 5) === "/help") {
+        const emojiList = "📊";
+        const emojiRun = "🚀";
+        const emojiHelp = "👽";
+        const replyMessage = `<b>List of available commands:</b>\n\n`;
+        const listCommand = `${emojiList} <b>/list:</b> Display all available processes\n`;
+        const runCommand = `${emojiRun} <b>/run:{process}</b> Run a specific process\n`;
+        const helpCommand = `${emojiHelp} <b>/help:</b> Show available commands and their usage\n`;
+
+        await ctx.replyWithHTML(
+          replyMessage + listCommand + runCommand + helpCommand
+        );
+      } else if (msg?.substring(0, 7) === "/clone:") {
+        const command = msg?.substring(7)?.trim();
+        const id = command?.split(" ")[0];
+        const newName = getDataByKey(command, "name");
+        await cloneProcess(id, connection, chatId, newName);
+      } else if (msg?.substring(0, 8) === "/delete:") {
+        const command = msg?.substring(8)?.trim();
+        const id = command?.split(" ")[0];
+        await deleteProcess(id, connection, chatId);
+      } else if (msg?.substring(0, 13) === "/groupcreate:") {
+        const groupName = msg?.substring(13)?.trim();
+        await createGroup(chatId, groupName, connection);
+      } else if (msg?.substring(0, 10) === "/grouplink") {
         const processGroupModel = ProcessGroupModel(connection);
-        const processGroup = await processGroupModel.find({
-          name: ctx?.update?.message?.text?.trim(),
-        });
-        const groupId = processGroup[0]._id;
+        const processGroups = await processGroupModel.find({ chatId });
 
-        // Get list process for user select
-        const processDataModel = ProcessDataModel(connection);
-        const processDatas = await processDataModel.find({
-          chatId,
-          $or: [{ groupId: { $exists: false } }, { groupId: null }],
-        });
         const replyKeyboard = Markup.keyboard([
-          ...processDatas.map((item) => {
+          ...processGroups.map((item) => {
             return [item?.name];
           }),
         ]);
         const keyboard = replyKeyboard.reply_markup;
-        const result = await ctx.reply("Select process:", {
+        const result = await ctx.reply("Select group:", {
           reply_markup: keyboard,
         });
 
-        // Update process group config steps
-        await processGroupConfigStepModel.findOneAndUpdate(
-          {
-            messageId: messageIdReply,
-          },
-          {
-            messageId: result?.message_id,
-            groupId,
-            step: "waiting-select-process",
-          }
-        );
-      } else if (step === "waiting-select-process") {
-        const processDataModel = ProcessDataModel(connection);
-        const processDatas = await processDataModel.find({
-          name: ctx?.update?.message?.text,
-        });
-        const processDataId = processDatas[0]._id;
-
         const processGroupConfigStepModel =
           ProcessGroupConfigStepModel(connection);
-        // Update process group config steps
-        const result = await processGroupConfigStepModel.findOneAndUpdate(
-          {
-            messageId: messageIdReply,
-          },
-          {
-            processDataId,
-            step: "waiting-link",
-          }
-        );
-
-        await linkProcessToGroup(
-          chatId,
-          connection,
-          processDataId,
-          result?.groupId?.toString()
-        );
-
-        ctx.reply("🛩 Link process to group successful!", {
-          reply_markup: { remove_keyboard: true },
+        await processGroupConfigStepModel.create({
+          createdAt: new Date(),
+          messageId: result?.message_id,
+          step: "waiting-select-group",
         });
       }
-
-      return;
-    }
-
-    if (msg?.trim() === "/runall") {
-      cronJobProcess(connection, chatId);
-    } else if (msg?.substring(0, 5) == "/run:") {
-      runProcessWithName(msg?.substring(5).trim(), connection, chatId);
-    } else if (msg?.substring(0, 5) === "/list") {
-      const result = await getProcessDataWithGroup(chatId, connection);
-      const emoji = "⚙️";
-      const listResponse = [];
-      if (result?.group && !isEmpty(result?.group)) {
-        result.group.forEach((item) => {
-          listResponse.push(`⭐️ ${item.name}:`);
-          if (!isEmpty(item?.processList)) {
-            item.processList.forEach((item) => {
-              listResponse.push(
-                `     ${emoji} <code><b>${item.name}</b></code>`
-              );
-            });
-          }
-        });
-      }
-      if (result?.notAssignGroup && !isEmpty(result?.notAssignGroup)) {
-        listResponse.push(`\n👽 Not assigned group:`);
-        result.notAssignGroup.forEach((item) => {
-          listResponse.push(`     ${emoji} <code><b>${item.name}</b></code>`);
-        });
-      }
-      await ctx.replyWithHTML(
-        listResponse.join("\n") || MessageResponse.TRY_IT
-      );
-    } else if (msg?.substring(0, 5) === "/help") {
-      const emojiList = "📊";
-      const emojiRun = "🚀";
-      const emojiHelp = "👽";
-      const replyMessage = `<b>List of available commands:</b>\n\n`;
-      const listCommand = `${emojiList} <b>/list:</b> Display all available processes\n`;
-      const runCommand = `${emojiRun} <b>/run:{process}</b> Run a specific process\n`;
-      const helpCommand = `${emojiHelp} <b>/help:</b> Show available commands and their usage\n`;
-
-      await ctx.replyWithHTML(
-        replyMessage + listCommand + runCommand + helpCommand
-      );
-    } else if (msg?.substring(0, 7) === "/clone:") {
-      const command = msg?.substring(7)?.trim();
-      const id = command?.split(" ")[0];
-      const newName = getDataByKey(command, "name");
-      await cloneProcess(id, connection, chatId, newName);
-    } else if (msg?.substring(0, 8) === "/delete:") {
-      const command = msg?.substring(8)?.trim();
-      const id = command?.split(" ")[0];
-      await deleteProcess(id, connection, chatId);
-    } else if (msg?.substring(0, 13) === "/groupcreate:") {
-      const groupName = msg?.substring(13)?.trim();
-      await createGroup(chatId, groupName, connection);
-    } else if (msg?.substring(0, 10) === "/grouplink") {
-      const processGroupModel = ProcessGroupModel(connection);
-      const processGroups = await processGroupModel.find({ chatId });
-
-      const replyKeyboard = Markup.keyboard([
-        ...processGroups.map((item) => {
-          return [item?.name];
-        }),
-      ]);
-      const keyboard = replyKeyboard.reply_markup;
-      const result = await ctx.reply("Select group:", {
-        reply_markup: keyboard,
-      });
-
-      const processGroupConfigStepModel =
-        ProcessGroupConfigStepModel(connection);
-      await processGroupConfigStepModel.create({
-        createdAt: new Date(),
-        messageId: result?.message_id,
-        step: "waiting-select-group",
-      });
+    } catch (error) {
+      console.log(error, "error when process message received");
     }
   });
 
   //  await test();
   cron.schedule("*/15 * * * *", async () => {
-        // await cronJobProcess(connection, process.env.TELEGRAM_GROUP_ID);
+    // await cronJobProcess(connection, process.env.TELEGRAM_GROUP_ID);
   });
 }
 
