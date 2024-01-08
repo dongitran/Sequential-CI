@@ -1,227 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <title>Interactive Steps with JSON Viewer - antd@5.12.4</title>
-    <style>
-      /* Add your styles here */
-      .steps-container {
-        display: flex;
-      }
-      .steps {
-        width: 200px;
-        margin-right: 20px;
-      }
-      .json-viewer {
-        flex: 1;
-        border: 1px solid #ccc;
-        padding: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="steps-container">
-      <div class="steps" id="steps"></div>
-      <div class="json-viewer" id="json-viewer">
-        JSON data will display here
-      </div>
-    </div>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
 
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
-    <script src="https://unpkg.com/antd@5.12.4/dist/antd-with-locales.min.js"></script>
-    <script src="https://unpkg.com/@ant-design/icons/dist/index.umd.js"></script>
-    <script src="https://unpkg.com/react-router-dom/dist/umd/react-router-dom.production.min.js"></script>
-    <script src="https://unpkg.com/react-router/dist/umd/react-router.production.min.js"></script>
+    <title>Sequential CI</title>
+    <meta content="" name="description" />
+    <meta content="" name="keywords" />
+
+    <!-- Favicons -->
+    <link href="assets/img/favicon.png" rel="icon" />
+    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+      rel="stylesheet"
+    />
+
+    <!-- Vendor CSS Files -->
+    <link
+      href="assets/vendor/bootstrap/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="assets/vendor/bootstrap-icons/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet" />
+    <link href="assets/vendor/quill/quill.snow.css" rel="stylesheet" />
+    <link href="assets/vendor/quill/quill.bubble.css" rel="stylesheet" />
+    <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet" />
+    <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet" />
+
+    <!-- Template Main CSS File -->
+    <link href="assets/css/style.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+      <div class="d-flex align-items-center justify-content-between">
+        <a href="index.html" class="logo d-flex align-items-center">
+          <span class="d-none d-lg-block">SequentialCi</span>
+        </a>
+        <i class="bi bi-list toggle-sidebar-btn"></i>
+      </div>
+      <!-- End Logo -->
+
+      <nav class="header-nav ms-auto">
+        <ul class="d-flex align-items-center">
+          <li class="nav-item d-block d-lg-none">
+            <a class="nav-link nav-icon search-bar-toggle" href="#">
+              <i class="bi bi-search"></i>
+            </a>
+          </li>
+          <!-- End Search Icon-->
+        </ul>
+      </nav>
+      <!-- End Icons Navigation -->
+    </header>
+    <!-- End Header -->
+
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
+      <ul class="sidebar-nav" id="sidebar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">
+            <i class="bi bi-grid"></i>
+            <span>Overview</span>
+          </a>
+        </li>
+        <!-- End Dashboard Nav -->
+
+        <li class="nav-item">
+          <a
+            class="nav-link collapsed"
+            data-bs-target="#components-nav"
+            data-bs-toggle="collapse"
+            href="#"
+          >
+            <i class="bi bi-menu-button-wide"></i><span>Commands</span
+            ><i class="bi bi-chevron-down ms-auto"></i>
+          </a>
+          <ul
+            id="components-nav"
+            class="nav-content collapse show"
+            data-bs-parent="#sidebar-nav"
+          >
+            <li>
+              <a href="command-generate-data.html">
+                <i class="bi bi-circle"></i><span>Generate data</span>
+              </a>
+            </li>
+            <li>
+              <a href="command-api.html">
+                <i class="bi bi-circle"></i><span>Api</span>
+              </a>
+            </li>
+            <li>
+              <a href="command-postgres.html">
+                <i class="bi bi-circle"></i><span>Postgres</span>
+              </a>
+            </li>
+            <li>
+              <a href="command-mongo.html">
+                <i class="bi bi-circle"></i><span>Mongo</span>
+              </a>
+            </li>
+            <li>
+              <a href="command-mysql.html">
+                <i class="bi bi-circle"></i><span>MySql</span>
+              </a>
+            </li>
+            <li>
+              <a href="command-kafka.html">
+                <i class="bi bi-circle"></i><span>Kafka</span>
+              </a>
+            </li>
+            <li>
+              <a href="command-validate-json.html">
+                <i class="bi bi-circle"></i><span>Validate json</span>
+              </a>
+            </li>
+            <li>
+              <a href="command-delay.html">
+                <i class="bi bi-circle"></i><span>Delay</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <!-- End Components Nav -->
+      </ul>
+    </aside>
+    <!-- End Sidebar-->
+
+    <main id="main" class="main">
+      <section class="section">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Overview</h5>
+                <p>
+                  Sequential CI is a web server that allows users to create CI
+                  configuration files with JSON format to execute various
+                  commands
+                </p>
+                <img
+                  src="assets/images/overview.png"
+                  class="card-img-top"
+                  style="width: 50%; margin-bottom: 38px"
+                />
+
+                <h5 class="card-title">Command List</h5>
+                <p>
+                  📊 <a style="font-weight: bold">generate-data</a>: Generates
+                  data via JavaScript code, either by direct assignment or
+                  JavaScript-based generation. The generated values are stored
+                  for subsequent use during execution.
+                </p>
+                <p>
+                  🌐 <a style="font-weight: bold">api</a>: Executes an API call
+                  using a cURL string, employing variables within the process.
+                  It interacts with the API and stores the result within the
+                  ongoing process.
+                </p>
+                <p>
+                  🐘 <a style="font-weight: bold">postgres</a>: Executes SQL
+                  queries, leveraging variables within the process to retrieve
+                  data from a PostgreSQL database and store it within the
+                  ongoing process.
+                </p>
+                <p>
+                  🍃 <a style="font-weight: bold">mongo</a>: Executes queries
+                  within a MongoDB database.
+                </p>
+                <p>
+                  ✔️ <a style="font-weight: bold">validateJson</a>: Validates a
+                  JSON object derived from session variables.
+                </p>
+                <p>
+                  ⏳ <a style="font-weight: bold">delay</a>: Implements a time
+                  delay in milliseconds during the execution process.
+                </p>
+                <p></p>
+                <p></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <!-- End #main -->
+
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer">
+      <div class="copyright">
+        &copy; Copyright <strong><span>SequentialCI</span></strong
+        >. All Rights Reserved
+      </div>
+    </footer>
+    <!-- End Footer -->
+
+    <a
+      href="#"
+      class="back-to-top d-flex align-items-center justify-content-center"
+      ><i class="bi bi-arrow-up-short"></i
+    ></a>
+
+    <!-- Vendor JS Files -->
+    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="assets/vendor/echarts/echarts.min.js"></script>
+    <script src="assets/vendor/quill/quill.min.js"></script>
+    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="assets/vendor/php-email-form/validate.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@textea/json-viewer@3"></script>
 
-    <script>
-      const { createRoot } = ReactDOM;
-      const { Steps } = antd;
-      const { useState } = React;
-
-      const stepsData = [
-        {
-          title: "Finished",
-          description: "This is a description for Finished step.",
-          data: {
-            status: "active",
-            name: "Portal-Charge random card",
-            process: [
-              {
-                name: "postgres",
-                description: "Get id card limit",
-                query: "select id from tbl_cards order by id desc limit 1; ",
-                parameters: {
-                  cardIdLimit: "id",
-                },
-              },
-              {
-                name: "generate-data",
-                description:
-                  "Generate card id for charge and init username and password portal",
-                parameters: {
-                  cardIdToGetRandomActiveCard:
-                    "Math.floor(Math.random()*{parameters['cardIdLimit']})",
-                },
-              },
-              {
-                name: "postgres",
-                description: "Get card to topup",
-                query:
-                  "select * from tbl_cards c inner join tbl_prepaid_card_tokens p on c.prepaid_card_token_id = p.id where c.id >= {parameters['cardIdToGetRandomActiveCard']} and c.status = 'activated' and c.expiration > now() and p.available_balance > 0 order by c.id asc limit 1",
-                parameters: {
-                  card: null,
-                  cardId: "id",
-                  campaignId: "campaign_id",
-                },
-              },
-              {
-                name: "api",
-                description: "Login portal web to get token",
-                curl: "curl --location 'https://localhost:3000/authentication'  --header 'Accept: */*'  --header 'Accept-Language: en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7'  --header 'Connection: keep-alive'  --header 'Content-Type: application/json'  --header 'Origin: https://localhost:3000'  --header 'Referer: https://localhost:3000/'  --header 'Sec-Fetch-Dest: empty'  --header 'Sec-Fetch-Mode: cors'  --header 'Sec-Fetch-Site: same-site'  --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'  --header 'keycloaktoken: null'  --header 'sec-ch-ua: \"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Google Chrome\";v=\"120\"'  --header 'sec-ch-ua-mobile: ?0'  --header 'sec-ch-ua-platform: \"Windows\"'  --data '{\"strategy\":\"keycloak\",\"email\":\"{parameters['portalEmail']}\",\"password\":\"{parameters['portalPassword']}\"}'",
-                parameters: {
-                  portalAccessToken: "accessToken",
-                  portalKeycloakToken: "authentication.keycloakToken",
-                },
-              },
-              {
-                name: "api",
-                description: "Charge request",
-                curl: "curl --location 'https://localhost:3000/charge-requests'  --header 'Accept: */*'  --header 'Accept-Language: en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7'  --header 'Authorization: Bearer {parameters['portalAccessToken']}'  --header 'Connection: keep-alive'  --header 'Content-Type: application/json'  --header 'Origin: https://localhost:3000'  --header 'Referer: https://localhost:3000/'  --header 'Sec-Fetch-Dest: empty'  --header 'Sec-Fetch-Mode: cors'  --header 'Sec-Fetch-Site: same-site'  --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'  --header 'keycloaktoken: {parameters['portalKeycloakToken']}'  --header 'sec-ch-ua: \"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Google Chrome\";v=\"120\"'  --header 'sec-ch-ua-mobile: ?0'  --header 'sec-ch-ua-platform: \"Windows\"'  --data '{\"cardId\":\"{parameters['cardId']}\",\"amount\":1,\"reason\":{\"key\":\"system_error\",\"description\":\"Hệ thống lỗi\",\"extraData\":{\"isRefundAmountSubPO\":true}},\"isRefundAmountSubPO\":true}'",
-                parameters: {
-                  chargeResult: null,
-                },
-              },
-              {
-                name: "postgres",
-                description: "Get id card limit",
-                query: "select id from tbl_cards order by id desc limit 1; ",
-                parameters: {
-                  cardIdLimit: "id",
-                },
-              },
-              {
-                name: "generate-data",
-                description:
-                  "Generate card id for charge and init username and password portal",
-                parameters: {
-                  cardIdToGetRandomActiveCard:
-                    "Math.floor(Math.random()*{parameters['cardIdLimit']})",
-                },
-              },
-              {
-                name: "postgres",
-                description: "Get card to topup",
-                query:
-                  "select * from tbl_cards c inner join tbl_prepaid_card_tokens p on c.prepaid_card_token_id = p.id where c.id >= {parameters['cardIdToGetRandomActiveCard']} and c.status = 'activated' and c.expiration > now() and p.available_balance > 0 order by c.id asc limit 1",
-                parameters: {
-                  card: null,
-                  cardId: "id",
-                  campaignId: "campaign_id",
-                },
-              },
-              {
-                name: "api",
-                description: "Login portal web to get token",
-                curl: "curl --location 'https://localhost:3000/authentication'  --header 'Accept: */*'  --header 'Accept-Language: en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7'  --header 'Connection: keep-alive'  --header 'Content-Type: application/json'  --header 'Origin: https://localhost:3000'  --header 'Referer: https://localhost:3000/'  --header 'Sec-Fetch-Dest: empty'  --header 'Sec-Fetch-Mode: cors'  --header 'Sec-Fetch-Site: same-site'  --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'  --header 'keycloaktoken: null'  --header 'sec-ch-ua: \"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Google Chrome\";v=\"120\"'  --header 'sec-ch-ua-mobile: ?0'  --header 'sec-ch-ua-platform: \"Windows\"'  --data '{\"strategy\":\"keycloak\",\"email\":\"{parameters['portalEmail']}\",\"password\":\"{parameters['portalPassword']}\"}'",
-                parameters: {
-                  portalAccessToken: "accessToken",
-                  portalKeycloakToken: "authentication.keycloakToken",
-                },
-              },
-              {
-                name: "api",
-                description: "Charge request",
-                curl: "curl --location 'https://localhost:3000/charge-requests'  --header 'Accept: */*'  --header 'Accept-Language: en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7'  --header 'Authorization: Bearer {parameters['portalAccessToken']}'  --header 'Connection: keep-alive'  --header 'Content-Type: application/json'  --header 'Origin: https://localhost:3000'  --header 'Referer: https://localhost:3000/'  --header 'Sec-Fetch-Dest: empty'  --header 'Sec-Fetch-Mode: cors'  --header 'Sec-Fetch-Site: same-site'  --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'  --header 'keycloaktoken: {parameters['portalKeycloakToken']}'  --header 'sec-ch-ua: \"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\", \"Google Chrome\";v=\"120\"'  --header 'sec-ch-ua-mobile: ?0'  --header 'sec-ch-ua-platform: \"Windows\"'  --data '{\"cardId\":\"{parameters['cardId']}\",\"amount\":1,\"reason\":{\"key\":\"system_error\",\"description\":\"Hệ thống lỗi\",\"extraData\":{\"isRefundAmountSubPO\":true}},\"isRefundAmountSubPO\":true}'",
-                parameters: {
-                  chargeResult: null,
-                },
-              },
-            ],
-          },
-        },
-        {
-          title: "In Progress",
-          description: "This is a description for In Progress step.",
-          data: { sampleData: "In Progress step data" },
-        },
-        {
-          title: "Waiting",
-          description: "This is a description for Waiting step.",
-          data: { sampleData: "Waiting step data" },
-        },
-        {
-          title: "Waiting",
-          description: "This is a description for Waiting step.",
-          data: { sampleData: "Waiting step data" },
-        },
-        {
-          title: "Waiting",
-          description: "This is a description for Waiting step.",
-          data: { sampleData: "Waiting step data" },
-        },
-        {
-          title: "Waiting",
-          description: "This is a description for Waiting step.",
-          data: { sampleData: "Waiting step data" },
-        },
-        {
-          title: "Waiting",
-          description: "This is a description for Waiting step.",
-          data: { sampleData: "Waiting step data" },
-        },
-        {
-          title: "Waiting",
-          description: "This is a description for Waiting step.",
-          data: { sampleData: "Waiting step data" },
-        },
-        {
-          title: "Waiting",
-          description: "This is a description for Waiting step.",
-          data: { sampleData: "Waiting step data" },
-        },
-        {
-          title: "Waiting",
-          description: "This is a description for Waiting step.",
-          data: { sampleData: "Waiting step data" },
-        },
-      ];
-
-      const App = () => {
-        const [currentStep, setCurrentStep] = useState(0);
-
-        const handleStepClick = (stepIndex) => {
-          setCurrentStep(stepIndex);
-          const jsonViewer = document.getElementById("json-viewer");
-          jsonViewer.textContent = renderJSON(stepsData[stepIndex].data);
-        };
-
-        function renderJSON(data) {
-          return new JsonViewer({
-            value: data,
-          }).render("#json-viewer");
-        }
-
-        return React.createElement(
-          Steps,
-          {
-            direction: "vertical",
-            size: "small",
-            current: currentStep,
-            items: stepsData.map((step, index) => ({
-              title: step.title,
-              description: step.description,
-              onClick: () => handleStepClick(index),
-            })),
-          },
-          null
-        );
-      };
-
-      const mountNode = document.getElementById("steps");
-      createRoot(mountNode).render(React.createElement(App));
-    </script>
+    <!-- Template Main JS File -->
+    <script src="assets/js/main.js"></script>
   </body>
 </html>

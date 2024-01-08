@@ -41,7 +41,11 @@ async function startApp() {
   });
 
   app.use(express.static("public"));
-  //app.use(express.static(path.join(__dirname, 'public')));
+  //app.get("/:fileName", (req, res) => {
+  //  const { fileName } = req.params;
+  //  res.sendFile(path.join(__dirname, "public", `${fileName}.html`));
+  //});  
+  app.use(express.static(path.join(__dirname, 'public')));
   app.get("/detail/:id", (req, res) => {
     const detailId = req.params.id;
     // Render your HTML file with the detailId
