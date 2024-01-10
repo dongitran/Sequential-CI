@@ -210,6 +210,7 @@ async function startApp() {
         const groupName = msg?.substring(13)?.trim();
         await createGroup(chatId, groupName, connection);
       } else if (msg?.substring(0, 10) === "/grouplink") {
+        // TODO: check not process assign to group
         const processGroupModel = ProcessGroupModel(connection);
         const processGroups = await processGroupModel.find({ chatId });
 
@@ -230,7 +231,7 @@ async function startApp() {
           messageId: result?.message_id,
           step: "waiting-select-group",
         });
-      } else if (msg?.substring(0, 7) === '/cancel'){
+      } else if (msg?.substring(0, 7) === "/cancel") {
         ctx.reply("🛩 Ok!", {
           reply_markup: { remove_keyboard: true },
         });

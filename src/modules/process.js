@@ -121,6 +121,7 @@ const runProcessItem = async (
 ) => {
   let resultProcessItem = {};
   let subProcess = [];
+  let inputCommand = null;
   try {
     // Get emoji of process
     const emoji = find(PROCESS_NAME, { NAME: processItem.name })?.EMOJI || "🦠";
@@ -163,6 +164,7 @@ const runProcessItem = async (
           updatedCurl = updatedCurl.replace("{uuid}", uuidv4());
         }
 
+        inputCommand = updatedCurl;
         const requestOptions = parseCurlString(updatedCurl);
 
         let result;
@@ -220,6 +222,8 @@ const runProcessItem = async (
             const regex = new RegExp(`{parameters\\['${key}']}`, "g");
             query = query.replace(regex, parameters[key]);
           });
+          inputCommand = query;
+
           result = (await client.query(query)).rows[0];
         } catch (error) {
           throw error;
@@ -278,6 +282,7 @@ const runProcessItem = async (
             port: processItem.config.port,
           });
           isConnected = true;
+          inputCommand = query;
 
           const [rows, fields] = await connection.execute(query);
         } catch (error) {
@@ -332,8 +337,10 @@ const runProcessItem = async (
           let result;
           if (processItem?.type === "insert") {
             console.log(query, "insert");
+            inputCommand = query;
             result = await collection.insertOne(JSON.parse(query));
           } else {
+            inputCommand = query;
             result = await collection.findOne(JSON.parse(query));
           }
 
@@ -389,6 +396,7 @@ const runProcessItem = async (
           const brokers = processItem.config.brokers;
           const kafkaMessage = new KafkaMessage(brokers);
 
+          inputCommand = { topic: processItem.topic, keyMessage, message };
           kafkaMessage.sendMessage(processItem.topic, keyMessage, message);
         } catch (error) {
           throw error;
@@ -461,7 +469,7 @@ const runProcessItem = async (
     throw error;
   }
 
-  return [parameters, resultProcessItem, subProcess];
+  return [parameters, resultProcessItem, subProcess, inputCommand];
 };
 
 const runProcessWithName = async (nameOrId, connection, chatId) => {
@@ -520,14 +528,16 @@ const runProcessWithName = async (nameOrId, connection, chatId) => {
       for (let index = 0; index < processValue.process.length; index++) {
         const processItem = processValue.process[index];
         let resultProcessItem = {},
-          subProcess;
+          subProcess,
+          inputProcess;
 
-        [parameters, resultProcessItem, subProcess] = await runProcessItem(
-          processItem,
-          parameters,
-          telegramManager,
-          connection
-        );
+        [parameters, resultProcessItem, subProcess, inputProcess] =
+          await runProcessItem(
+            processItem,
+            parameters,
+            telegramManager,
+            connection
+          );
 
         if (!isEmpty(subProcess)) {
           // Add mark subprocess with flag subProcess: true
@@ -550,6 +560,7 @@ const runProcessWithName = async (nameOrId, connection, chatId) => {
                 name: processItem.name,
                 description: processItem.description,
                 result: resultProcessItem,
+                inputProcess,
               },
             },
           },
