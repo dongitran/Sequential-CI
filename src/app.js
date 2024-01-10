@@ -32,22 +32,13 @@ const {
 async function startApp() {
   const connection = await connectToMongo(process.env.MONGO_URI);
 
-  const processLogModel = ProcessLogModel(connection);
-  const data = await processLogModel.create({ createdAt: new Date() });
-  console.log(data._id.toString(), "4adfkj");
-
   app.listen(process.env.PORT, () => {
     console.log(`Server running at http://localhost:${process.env.PORT}`);
   });
 
   app.use(express.static("public"));
-  //app.get("/:fileName", (req, res) => {
-  //  const { fileName } = req.params;
-  //  res.sendFile(path.join(__dirname, "public", `${fileName}.html`));
-  //});  
-  app.use(express.static(path.join(__dirname, 'public')));
+  app.use(express.static(path.join(__dirname, "public")));
   app.get("/detail/:id", (req, res) => {
-    const detailId = req.params.id;
     // Render your HTML file with the detailId
     res.sendFile(path.join(__dirname, "public", "detail.html"));
   });
@@ -107,6 +98,7 @@ async function startApp() {
             chatId,
             $or: [{ groupId: { $exists: false } }, { groupId: null }],
           });
+          console.log(processDatas, "processDatas");
           const replyKeyboard = Markup.keyboard([
             ...processDatas.map((item) => {
               return [item?.name];
@@ -147,6 +139,7 @@ async function startApp() {
               step: "waiting-link",
             }
           );
+          console.log(result, "resultresult");
 
           await linkProcessToGroup(
             chatId,
@@ -236,6 +229,10 @@ async function startApp() {
           createdAt: new Date(),
           messageId: result?.message_id,
           step: "waiting-select-group",
+        });
+      } else if (msg?.substring(0, 7) === '/cancel'){
+        ctx.reply("🛩 Ok!", {
+          reply_markup: { remove_keyboard: true },
         });
       }
     } catch (error) {
