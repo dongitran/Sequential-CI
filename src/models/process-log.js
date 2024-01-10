@@ -10,6 +10,7 @@ const ProcessLog = new Schema({
   status: String,
   process: Schema.Types.Mixed,
   content: Schema.Types.Mixed,
+  inputProcess: Schema.Types.Mixed,
 });
 
 const ProcessLogModel = (connection) => {

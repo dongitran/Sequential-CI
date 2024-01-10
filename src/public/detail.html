@@ -6,7 +6,7 @@
     <style>
       body {
         background-color: #343541;
-        overflow: hidden;
+        overflow: auto;
       }
       .main-title {
         font-size: 2em;
@@ -41,7 +41,10 @@
     <div class="main-title" id="title"></div>
     <div class="steps-container">
       <div class="steps" id="steps"></div>
-      <div class="json-viewer" id="json-viewer"></div>
+      <div style="display: flex; flex-direction: column; width: 100%">
+        <textarea id="textAreaId" rows="5" cols="50" readonly></textarea>
+        <div class="json-viewer" id="json-viewer"></div>
+      </div>
     </div>
 
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -85,9 +88,10 @@
               const jsonViewer = document.getElementById("json-viewer");
               let stepsDataTmp = jsonData[0].process.map((item) => {
                 return {
-                  title: "aadsfasfda",
+                  title: "", // TODO: update
                   description: item?.description,
                   data: item?.result,
+                  input: item?.inputProcess,
                 };
               });
 
@@ -106,6 +110,12 @@
           setCurrentStep(data.length - 1);
           const jsonViewer = document.getElementById("json-viewer");
           jsonViewer.textContent = renderJSON(data[stepIndex].data);
+
+          if (data[stepIndex].input) {
+            document.getElementById("textAreaId").value = data[stepIndex].input;
+          } else {
+            document.getElementById("textAreaId").value = "";
+          }
         };
 
         function renderJSON(data) {
