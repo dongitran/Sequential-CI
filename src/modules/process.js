@@ -40,9 +40,9 @@ const cronJobProcess = async (connection, chatId) => {
       let parameters = {};
       console.log(`Running: ${processValue.name}`);
       await telegramManager.sendMessageAndUpdateMessageId(
-        `--------------------------- \n🚁 Running: <b>${
+        `🚁 Running: <b>${
           processValue.name
-        }</b>\nId: <code>${processValue._id.toString()}</code>\n---------------------------\n`
+        }</b>\nId: <code>${processValue._id.toString()}</code>\n`
       );
 
       const processLogModel = ProcessLogModel(connection);
@@ -63,7 +63,8 @@ const cronJobProcess = async (connection, chatId) => {
             processItem,
             parameters,
             telegramManager,
-            connection
+            connection,
+            false
           );
 
           if (!isEmpty(subProcess)) {
@@ -104,10 +105,6 @@ const cronJobProcess = async (connection, chatId) => {
       await delayWithAsync(3000);
     }
     clearInterval(idIntervalSendMessage);
-
-    setTimeout(async () => {
-      await telegramManager.appendMessageAndEditMessage("<b>Successful</b>");
-    }, 250);
   } catch (error) {
     console.log(error, "Error process");
   }
@@ -117,19 +114,25 @@ const runProcessItem = async (
   processItem,
   parameters,
   telegramManager,
-  connection
+  connection,
+  displayStep = true
 ) => {
   let resultProcessItem = {};
   let subProcess = [];
   let inputCommand = null;
   try {
-    // Get emoji of process
-    const emoji = find(PROCESS_NAME, { NAME: processItem.name })?.EMOJI || "🦠";
-    const isSubProcess = processItem?.isSubProcess;
-    const generateSpace = (isSubProcess) => (isSubProcess ? " ".repeat(8) : "");
-    await telegramManager.appendMessage(
-      `${generateSpace(isSubProcess)}${emoji} ${processItem.description}\n`
-    );
+    // Check to display step of process
+    if (displayStep) {
+      // Get emoji of process
+      const emoji =
+        find(PROCESS_NAME, { NAME: processItem.name })?.EMOJI || "🦠";
+      const isSubProcess = processItem?.isSubProcess;
+      const generateSpace = (isSubProcess) =>
+        isSubProcess ? " ".repeat(8) : "";
+      await telegramManager.appendMessage(
+        `${generateSpace(isSubProcess)}${emoji} ${processItem.description}\n`
+      );
+    }
 
     switch (processItem.name) {
       case PROCESS_NAME.GENERATE_DATA.NAME: {
