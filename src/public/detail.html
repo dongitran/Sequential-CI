@@ -6,7 +6,7 @@
     <style>
       body {
         background-color: #343541;
-        overflow: auto;
+        overflow: hidden;
       }
       .main-title {
         font-size: 2em;
@@ -41,8 +41,8 @@
     <div class="main-title" id="title"></div>
     <div class="steps-container">
       <div class="steps" id="steps"></div>
-      <div style="display: flex; flex-direction: column; width: 100%">
-        <textarea id="textAreaId" rows="5" cols="50" readonly></textarea>
+      <div style="display: flex; flex-direction: row; width: 100%">
+        <div class="json-viewer" id="json-viewer-input"></div>
         <div class="json-viewer" id="json-viewer"></div>
       </div>
     </div>
@@ -108,22 +108,38 @@
 
         const handleStepClick = (data, stepIndex) => {
           setCurrentStep(data.length - 1);
-          const jsonViewer = document.getElementById("json-viewer");
-          jsonViewer.textContent = renderJSON(data[stepIndex].data);
 
+          // Render json viewer input
+          let input = {};
           if (data[stepIndex].input) {
-            document.getElementById("textAreaId").value = data[stepIndex].input;
-          } else {
-            document.getElementById("textAreaId").value = "";
+            input = data[stepIndex].input;
           }
+          const jsonViewerInput = document.getElementById("json-viewer-input");
+          jsonViewerInput.textContent = renderJSON(
+            "json-viewer-input",
+            "Input",
+            input,
+            5000
+          );
+
+          // Render json viewer output
+          const jsonViewer = document.getElementById("json-viewer");
+          jsonViewer.textContent = renderJSON(
+            "json-viewer",
+            "Output",
+            data[stepIndex].data,
+            50
+          );
         };
 
-        function renderJSON(data) {
+        function renderJSON(idElement, rootName, data, length) {
           return new JsonViewer({
             value: data,
             theme: "dark",
             displayDataTypes: false,
-          }).render("#json-viewer");
+            rootName,
+            collapseStringsAfterLength: length,
+          }).render(`#${idElement}`);
         }
 
         return React.createElement(
