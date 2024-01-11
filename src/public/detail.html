@@ -98,7 +98,7 @@
               const jsonViewer = document.getElementById("json-viewer");
               let stepsDataTmp = jsonData[0].process.map((item) => {
                 return {
-                  title: "", // TODO: update
+                  name: item?.name,
                   description: item?.description,
                   data: item?.result,
                   input: item?.inputProcess,
@@ -122,21 +122,49 @@
           jsonViewer.textContent = renderJSON(data[stepIndex].data);
 
           if (data[stepIndex].input) {
-            let inputStr = data[stepIndex].input?.replace(/--/g, "\n--");
-            inputStr = inputStr.replace(
-              /--data-raw '(.+?)'/,
-              function (match, p1) {
-                let formattedJson = JSON.stringify(JSON.parse(p1), null, 2);
-                return `--data-raw '\n${formattedJson}'`;
+            let inputStr = data[stepIndex].input;
+            switch (data[stepIndex].name) {
+              case "api": {
+                inputStr = inputStr?.replace(/--/g, "\n--");
+                inputStr = inputStr?.replace(
+                  /--data-raw '(.+?)'/,
+                  function (match, p1) {
+                    let formattedJson = JSON.stringify(JSON.parse(p1), null, 2);
+                    return `--data-raw '\n${formattedJson}'`;
+                  }
+                );
+                inputStr = inputStr.replace(
+                  /--data '(.+?)'/,
+                  function (match, p1) {
+                    let formattedJson = JSON.stringify(JSON.parse(p1), null, 2);
+                    return `--data '\n${formattedJson}'`;
+                  }
+                );
+
+                break;
               }
-            );
-            inputStr = inputStr.replace(
-              /--data '(.+?)'/,
-              function (match, p1) {
-                let formattedJson = JSON.stringify(JSON.parse(p1), null, 2);
-                return `--data '\n${formattedJson}'`;
+              case "postgres": {
+                inputStr = inputStr.replace(
+                  /( from| inner join| on| where| order by| limit)/g,
+                  "\n$1"
+                );
+
+                break;
               }
-            );
+              case "mongo": {
+                const jsonObject = JSON.parse(inputStr);
+                inputStr = JSON.stringify(jsonObject, null, 2);
+
+                break;
+              }
+              case "validateJson": {
+                const jsonObject = JSON.parse(inputStr.replace(/\"/g, '"'));
+                inputStr = JSON.stringify(jsonObject, null, 2);
+
+                break;
+              }
+            }
+
             document.getElementById("textAreaId").value = inputStr;
           } else {
             document.getElementById("textAreaId").value = "";

@@ -418,8 +418,8 @@ const runProcessItem = async (
             const regex = new RegExp(`{parameters\\['${key}']}`, "g");
             schemaString = schemaString.replace(regex, parameters[key]);
           });
+          inputCommand = schemaString;
           schemaString = JSON.parse(schemaString);
-          console.log(schemaString, "schemaString");
 
           schema = eval(schemaString);
         } else {
@@ -428,6 +428,7 @@ const runProcessItem = async (
             const regex = new RegExp(`{parameters\\['${key}']}`, "g");
             schemaString = schemaString.replace(regex, parameters[key]);
           });
+          inputCommand = schemaString;
           schemaString = JSON.parse(schemaString);
 
           const schemaObject = {};
@@ -447,8 +448,11 @@ const runProcessItem = async (
           { allowUnknown: true }
         );
         if (error) {
+          resultProcessItem = { result: "Validate failed" };
           throw error;
         }
+
+        resultProcessItem = { result: "Validate successful" };
         break;
       }
       case PROCESS_NAME.SUBPROCESS.NAME: {
