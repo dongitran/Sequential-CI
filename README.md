@@ -63,6 +63,8 @@ To execute specific processes/tests, use the Telegram bot provided within this r
 - 🌐 `api`: Executes an API call using a cURL string, employing variables within the process. It interacts with the API and stores the result within the ongoing process.
 - 🐘 `postgres`: Executes SQL queries, leveraging variables within the process to retrieve data from a PostgreSQL database and store it within the ongoing process.
 - 🍃 `mongo`: Executes queries within a MongoDB database.
+- 💾 `mysql`: Executes queries within a MySQL database.
+- 📨 `kafka`: Send message to kafka broker
 - ✔️ `validateJson`: Validates a JSON object derived from session variables.
 - ⏳ `delay`: Implements a time delay in milliseconds during the execution process.
 
