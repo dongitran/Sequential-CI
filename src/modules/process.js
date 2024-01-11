@@ -103,7 +103,7 @@ const cronJobProcess = async (connection, chatId) => {
       await telegramManager.appendMessageAndEditMessage(
         `Detail: <a href="${process.env.URL}/detail/${_idLog}">Click here</a>\n`
       );
-      console.log(JSON.stringify(parameters), "parameters");
+      telegramManager.clearMessageId();
       await delayWithAsync(3000);
     }
     clearInterval(idIntervalSendMessage);

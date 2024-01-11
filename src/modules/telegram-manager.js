@@ -90,6 +90,10 @@ class TelegramManager {
       console.log("send message current error: ", error);
     }
   }
+
+  clearMessageId() {
+    this.messageId = null;
+  }
 }
 
 module.exports = TelegramManager;
