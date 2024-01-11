@@ -3,7 +3,7 @@
 Sequential CI is a web server that allows users to update CI configuration files in JSON format to execute various commands for API testing, Postgres querying, MongoDB operations, and more. Each process represents a session, enabling data retrieval for subsequent tests. Below is a sample configuration file for test execution
 
 ## How To Use
-- Clone pr
+- Clone source code
 - Update .env to set Web server URL, MongoDB connection URI and your Telegram bot token
 - Install dependency and run project
 
