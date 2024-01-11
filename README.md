@@ -4,8 +4,8 @@ Sequential CI is a web server that allows users to update CI configuration files
 
 ## How To Use
 - Clone pr
-- Update .env with parameter of url webserver, mongo uri connect string and telegram bot
-- Run project
+- Update .env to set Web server URL, MongoDB connection URI and your Telegram bot token
+- Install dependency and run project
 
 ## Sample Configuration of Process
 ```json
