@@ -42,7 +42,17 @@
     <div class="steps-container">
       <div class="steps" id="steps"></div>
       <div style="display: flex; flex-direction: row; width: 100%">
-        <div class="json-viewer" id="json-viewer-input"></div>
+        <textarea
+          id="textAreaId"
+          rows="5"
+          readonly
+          style="
+            flex: 1;
+            background-color: rgb(24, 24, 24);
+            color: rgb(208, 208, 208);
+            line-height: 1.5;
+          "
+        ></textarea>
         <div class="json-viewer" id="json-viewer"></div>
       </div>
     </div>
@@ -108,38 +118,37 @@
 
         const handleStepClick = (data, stepIndex) => {
           setCurrentStep(data.length - 1);
-
-          // Render json viewer input
-          let input = {};
-          if (data[stepIndex].input) {
-            input = data[stepIndex].input;
-          }
-          const jsonViewerInput = document.getElementById("json-viewer-input");
-          jsonViewerInput.textContent = renderJSON(
-            "json-viewer-input",
-            "Input",
-            input,
-            5000
-          );
-
-          // Render json viewer output
           const jsonViewer = document.getElementById("json-viewer");
-          jsonViewer.textContent = renderJSON(
-            "json-viewer",
-            "Output",
-            data[stepIndex].data,
-            50
-          );
+          jsonViewer.textContent = renderJSON(data[stepIndex].data);
+
+          if (data[stepIndex].input) {
+            let inputStr = data[stepIndex].input?.replace(/--/g, "\n--");
+            inputStr = inputStr.replace(
+              /--data-raw '(.+?)'/,
+              function (match, p1) {
+                let formattedJson = JSON.stringify(JSON.parse(p1), null, 2);
+                return `--data-raw '\n${formattedJson}'`;
+              }
+            );
+            inputStr = inputStr.replace(
+              /--data '(.+?)'/,
+              function (match, p1) {
+                let formattedJson = JSON.stringify(JSON.parse(p1), null, 2);
+                return `--data '\n${formattedJson}'`;
+              }
+            );
+            document.getElementById("textAreaId").value = inputStr;
+          } else {
+            document.getElementById("textAreaId").value = "";
+          }
         };
 
-        function renderJSON(idElement, rootName, data, length) {
+        function renderJSON(data) {
           return new JsonViewer({
             value: data,
             theme: "dark",
             displayDataTypes: false,
-            rootName,
-            collapseStringsAfterLength: length,
-          }).render(`#${idElement}`);
+          }).render("#json-viewer");
         }
 
         return React.createElement(
