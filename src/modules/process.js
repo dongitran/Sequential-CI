@@ -58,14 +58,15 @@ const cronJobProcess = async (connection, chatId) => {
       try {
         for (let index = 0; index < processValue.process.length; index++) {
           const processItem = processValue.process[index];
-          let subProcess;
-          [parameters, resultProcessItem, subProcess] = await runProcessItem(
-            processItem,
-            parameters,
-            telegramManager,
-            connection,
-            false
-          );
+          let subProcess, inputProcess;
+          [parameters, resultProcessItem, subProcess, inputProcess] =
+            await runProcessItem(
+              processItem,
+              parameters,
+              telegramManager,
+              connection,
+              false
+            );
 
           if (!isEmpty(subProcess)) {
             // Add mark subprocess with flag subProcess: true
@@ -88,6 +89,7 @@ const cronJobProcess = async (connection, chatId) => {
                   name: processItem.name,
                   description: processItem.description,
                   result: resultProcessItem,
+                  inputProcess,
                 },
               },
             },
