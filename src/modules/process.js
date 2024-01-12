@@ -25,7 +25,7 @@ const cronJobProcess = async (connection, chatId) => {
 
     const processDataModel = ProcessDataModel(connection);
     const allProcessData = await processDataModel.find({
-      chatId,
+      //chatId,
       status: PROCESS_STATUS.ACTIVE,
     });
 
@@ -490,7 +490,7 @@ const runProcessWithName = async (nameOrId, connection, chatId) => {
   const ProcessDataModelWithConnection = ProcessDataModel(connection);
   let processValue = await ProcessDataModelWithConnection.findOne({
     name: nameOrId,
-    chatId,
+    //chatId,
     //status: PROCESS_STATUS.ACTIVE,
   });
 
@@ -499,7 +499,7 @@ const runProcessWithName = async (nameOrId, connection, chatId) => {
       // TODO: validate hex string
       processValue = await ProcessDataModelWithConnection.findOne({
         _id: new Types.ObjectId(nameOrId),
-        chatId,
+        //chatId,
       });
     }
 
