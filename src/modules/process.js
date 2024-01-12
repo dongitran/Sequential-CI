@@ -25,7 +25,7 @@ const cronJobProcess = async (connection, chatId) => {
 
     const processDataModel = ProcessDataModel(connection);
     const allProcessData = await processDataModel.find({
-      chatId,
+      //chatId,
       status: PROCESS_STATUS.ACTIVE,
     });
 
@@ -40,9 +40,9 @@ const cronJobProcess = async (connection, chatId) => {
       let parameters = {};
       console.log(`Running: ${processValue.name}`);
       await telegramManager.sendMessageAndUpdateMessageId(
-        `🚁 Running: <b>${
+        `🚁 <b>${
           processValue.name
-        }</b>\nId: <code>${processValue._id.toString()}</code>\n`
+        }</b>`
       );
 
       const processLogModel = ProcessLogModel(connection);
@@ -101,7 +101,7 @@ const cronJobProcess = async (connection, chatId) => {
       }
 
       await telegramManager.appendMessageAndEditMessage(
-        `Detail: <a href="${process.env.URL}/detail/${_idLog}">Click here</a>\n`
+        ` (<a href="${process.env.URL}/detail/${_idLog}">Detail</a>)`
       );
       telegramManager.clearMessageId();
       await delayWithAsync(3000);
@@ -490,7 +490,7 @@ const runProcessWithName = async (nameOrId, connection, chatId) => {
   const ProcessDataModelWithConnection = ProcessDataModel(connection);
   let processValue = await ProcessDataModelWithConnection.findOne({
     name: nameOrId,
-    chatId,
+    //chatId,
     //status: PROCESS_STATUS.ACTIVE,
   });
 
@@ -499,7 +499,7 @@ const runProcessWithName = async (nameOrId, connection, chatId) => {
       // TODO: validate hex string
       processValue = await ProcessDataModelWithConnection.findOne({
         _id: new Types.ObjectId(nameOrId),
-        chatId,
+        //chatId,
       });
     }
 
