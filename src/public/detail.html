@@ -195,13 +195,28 @@
           }).render("#json-viewer");
         }
 
+        function updateAndGetDescription(step) {
+          const PROCESS_EMOJI = {
+            "generate-data": "📊",
+            "delay": "⏳",
+            "api": "🌐",
+            "postgres": "🐘",
+            "mysql": "🛢️",
+            "mongo": "🍃",
+            "kafka": "📬",
+            "validateJson": "🎯",
+            "subprocess": "⚙️"
+          }
+          return `${PROCESS_EMOJI[step?.name]} ${step?.description}`;
+        }
+
         return React.createElement("ul", { className: "custom-steps" }, 
           stepsData.map((step, index) => (
             React.createElement("li", {
               key: index,
               className: `custom-step ${index === currentStep ? 'active' : ''}`,
               onClick: () => handleStepClick(stepsData, index)
-            }, step.description)
+            }, updateAndGetDescription(step))
           ))
         );
       };
