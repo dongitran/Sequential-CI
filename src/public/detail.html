@@ -112,6 +112,7 @@
     <script src="https://unpkg.com/react-router/dist/umd/react-router.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@textea/json-viewer@3"></script>
 
+
     <script>
       const { createRoot } = ReactDOM;
       const { Steps } = antd;
@@ -208,17 +209,39 @@
               }
               case "validateJson": {
                 try{
-                  let quotedProperties = inputStr.substring(12);
-                  quotedProperties = quotedProperties.substring(0, quotedProperties.length - 2);
-                  quotedProperties = quotedProperties.replace(/(\w+(-\w+)*):/g, '"$1":');
+                  let quotedProperties = inputStr;
+                  if(quotedProperties[0] === '"'){
+                    quotedProperties = quotedProperties.substring(1);
+                    quotedProperties = quotedProperties.substring(0, quotedProperties.length - 1);
+                  }
+                  
+                  function formatJSONString(jsonString) {
+                      let indentLevel = 0;
+                      let formattedString = '';
 
-                  let quotedValues = quotedProperties.replace(/:\s*([^,{\s]+)/g, ': "$1"');
-                  quotedValues = quotedValues.replace(/'/g, '"');
+                      for (let i = 0; i < jsonString.length; i++) {
+                          const char = jsonString[i];
 
-                  let finalStr = quotedValues.slice(0, -1).replace(/,}/g, '}');
+                          if (char === '{' || char === '[') {
+                              indentLevel++;
+                              formattedString += char + '\n' + ' '.repeat(indentLevel * 2);
+                          } else if (char === '}' || char === ']') {
+                              indentLevel--;
+                              formattedString += '\n' + ' '.repeat(indentLevel * 2) + char;
+                          } else if (char === ',') {
+                              formattedString += char + '\n' + ' '.repeat(indentLevel * 2);
+                          } else {
+                              formattedString += char;
+                          }
+                      }
 
-                  const jsonObject = JSON.parse(finalStr.replace(/\"/g, '"'));
-                  inputStr = JSON.stringify(jsonObject, null, 2);
+                      return formattedString.replace(/^\s*[\r\n]/gm, ''); // Xoá các dòng rỗng
+                  }
+
+                  const formattedJSON = formatJSONString(quotedProperties);
+
+
+                  inputStr = formattedJSON;
                 }
                 catch(error){
                   console.log(error, 'Validate json error');
