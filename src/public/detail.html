@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Interactive Steps with JSON Viewer - antd@5.12.4</title>
+    <link href="/assets/css/loading.css" rel="stylesheet" />
     <style>
       body {
         background-color: #343541;
@@ -53,27 +54,53 @@
       .custom-step.active {
         background-color: #777;
       }
+      #loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #343541;
+        color: white;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9999;
+      }
+
+      
     </style>
   </head>
   <body>
-    <div class="main-title" id="title"></div>
-    <div class="steps-container">
-      <div class="steps" id="steps">
-        <ul class="custom-steps" id="customSteps"></ul>
+    <div class="box" id="loading">
+      <div class="cat">
+        <div class="cat__body"></div>
+        <div class="cat__body"></div>
+        <div class="cat__tail"></div>
+        <div class="cat__head"></div>
       </div>
-      <div style="display: flex; flex-direction: row; width: 100%">
-        <textarea
-          id="textAreaId"
-          rows="5"
-          readonly
-          style="
-            flex: 1;
-            background-color: rgb(24, 24, 24);
-            color: rgb(208, 208, 208);
-            line-height: 1.5;
-          "
-        ></textarea>
-        <div class="json-viewer" id="json-viewer"></div>
+    </div>
+    <div id="app" style="display: none;">
+      <div class="main-title" id="title"></div>
+      <div class="steps-container">
+        <div class="steps" id="steps">
+          <ul class="custom-steps" id="customSteps"></ul>
+        </div>
+        <div style="display: flex; flex-direction: row; width: 100%">
+          <textarea
+            id="textAreaId"
+            rows="5"
+            readonly
+            style="
+              flex: 1;
+              background-color: rgb(24, 24, 24);
+              color: rgb(208, 208, 208);
+              line-height: 1.5;
+            "
+          ></textarea>
+          <div class="json-viewer" id="json-viewer"></div>
+        </div>
       </div>
     </div>
 
@@ -94,6 +121,7 @@
       const App = () => {
         const [currentStep, setCurrentStep] = useState(0);
         const [stepsData, setStepsData] = useState([]);
+        const [loading, setLoading] = useState(true);
 
         useEffect(() => {
           const url = window.location.pathname;
@@ -123,6 +151,11 @@
 
               handleStepClick(stepsDataTmp, 0);
               setStepsData(stepsDataTmp);
+              setLoading(false);
+              setTimeout(() => {
+                document.getElementById("app").style.display = "block";
+                document.getElementById("loading").style.display = "none";
+              }, 2000);
             })
             .catch((error) => {
               console.error(
