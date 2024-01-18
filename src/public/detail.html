@@ -73,13 +73,12 @@
     </style>
   </head>
   <body>
-    <div class="box" id="loading">
-      <div class="cat">
-        <div class="cat__body"></div>
-        <div class="cat__body"></div>
-        <div class="cat__tail"></div>
-        <div class="cat__head"></div>
-      </div>
+    <div id="loader-wrapper">
+      <div id="loader"></div>
+      
+      <div class="loader-section section-left"></div>
+      <div class="loader-section section-right"></div>
+      
     </div>
     <div id="app" style="display: none;">
       <div class="main-title" id="title"></div>
@@ -154,7 +153,8 @@
               setLoading(false);
               setTimeout(() => {
                 document.getElementById("app").style.display = "block";
-                document.getElementById("loading").style.display = "none";
+                document.body.classList.add('loaded');
+                
               }, 2000);
             })
             .catch((error) => {
@@ -207,8 +207,22 @@
                 break;
               }
               case "validateJson": {
-                const jsonObject = JSON.parse(inputStr.replace(/\"/g, '"'));
-                inputStr = JSON.stringify(jsonObject, null, 2);
+                try{
+                  let quotedProperties = inputStr.substring(12);
+                  quotedProperties = quotedProperties.substring(0, quotedProperties.length - 2);
+                  quotedProperties = quotedProperties.replace(/(\w+(-\w+)*):/g, '"$1":');
+
+                  let quotedValues = quotedProperties.replace(/:\s*([^,{\s]+)/g, ': "$1"');
+                  quotedValues = quotedValues.replace(/'/g, '"');
+
+                  let finalStr = quotedValues.slice(0, -1).replace(/,}/g, '}');
+
+                  const jsonObject = JSON.parse(finalStr.replace(/\"/g, '"'));
+                  inputStr = JSON.stringify(jsonObject, null, 2);
+                }
+                catch(error){
+                  console.log(error, 'Validate json error');
+                }
 
                 break;
               }
@@ -225,6 +239,7 @@
             value: data,
             theme: "dark",
             displayDataTypes: false,
+            rootName: 'Output'
           }).render("#json-viewer");
         }
 
