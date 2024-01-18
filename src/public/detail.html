@@ -222,6 +222,13 @@
                 }
                 catch(error){
                   console.log(error, 'Validate json error');
+                  try{
+                    const jsonObject = JSON.parse(inputStr);
+                    inputStr = JSON.stringify(jsonObject, null, 2);
+                  }
+                  catch(error){
+                    console.log(error, 'Validate json error');
+                  }
                 }
 
                 break;
