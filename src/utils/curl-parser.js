@@ -22,7 +22,22 @@ function parseCurlString(curlData) {
   }
 
   const dataMatches = curlData.match(/--data '(.+?)'/);
-  if (dataMatches) {
+  const dataMatchesWithUrlEncode = curlData.includes("--data-urlencode");
+  if (dataMatchesWithUrlEncode) {
+    const regex = /--data-urlencode\s+'([^']*)=([^']*)'/g;
+    const data = {};
+
+    let match;
+    while ((match = regex.exec(curlData)) !== null) {
+      const [, key, value] = match;
+      data[key] = decodeURIComponent(value);
+    }
+    console.log(data, "formDataformData");
+
+    options.data = data;
+    options.urlEncode = true;
+    headers["Content-Type"] = "application/x-www-form-urlencoded";
+  } else if (dataMatches) {
     options.data = JSON.parse(dataMatches[1]);
   } else {
     const formDataRegex = /--form '([^=]+)=([^']+)'/g;
@@ -37,7 +52,7 @@ function parseCurlString(curlData) {
     }
 
     options.data = formData;
-    headers["Content-Type"] = "application/x-www-form-urlencoded";
+    headers["Content-Type"] = "multipart/form-data";
   }
 
   // Check method
@@ -52,6 +67,8 @@ function parseCurlString(curlData) {
   }
 
   options.headers = headers;
+
+  console.log(options, "optionsoptions");
 
   return options;
 }

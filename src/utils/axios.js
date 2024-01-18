@@ -10,16 +10,29 @@ async function performRequest(requestOptions) {
       headers["Content-Type"]?.toLowerCase()?.includes("application/json")
     ) {
       headers["Content-Type"] = "application/json";
-    } else if (data) {
+    } else if (
+      data &&
+      headers["Content-Type"]?.toLowerCase()?.includes("multipart/form-data")
+    ) {
       headers["Content-Type"] = "multipart/form-data";
       const formData = new FormData();
       Object.keys(data).forEach((key) => {
         formData.append(key, data[key]);
       });
       requestOptions.data = formData;
+    } else if (
+      data &&
+      headers["Content-Type"]
+        ?.toLowerCase()
+        ?.includes("application/x-www-form-urlencoded")
+    ) {
+      headers["Content-Type"] = "application/x-www-form-urlencoded";
+      const urlEncodedData = new URLSearchParams(data).toString();
+      requestOptions.data = urlEncodedData;
+    } else {
+      throw "Invalid content type for run api";
     }
 
-    console.log(requestOptions.data, "requestOptions.data");
     const response = await axios({
       method,
       url,

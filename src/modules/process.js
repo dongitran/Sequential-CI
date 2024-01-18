@@ -40,9 +40,7 @@ const cronJobProcess = async (connection, chatId) => {
       let parameters = {};
       console.log(`Running: ${processValue.name}`);
       await telegramManager.sendMessageAndUpdateMessageId(
-        `🚁 <b>${
-          processValue.name
-        }</b>`
+        `🚁 <b>${processValue.name}</b>`
       );
 
       const processLogModel = ProcessLogModel(connection);
@@ -176,7 +174,11 @@ const runProcessItem = async (
         try {
           result = await performRequest(requestOptions);
         } catch (error) {
-          result = error?.response?.data;
+          if (error?.response?.data) {
+            result = error?.response?.data;
+          } else {
+            throw error;
+          }
         }
 
         if (processItem?.parameters) {
