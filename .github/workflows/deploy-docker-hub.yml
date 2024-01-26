@@ -75,7 +75,7 @@ jobs:
             docker rm sequential-ci
             docker run -d --name sequential-ci -p 80:80 --env-file /tmp/.env --restart always ideavn/sequential-ci
             rm -rf /tmp/.env
-            docker image prune -a
+            docker image prune -a -f
 
   send-notification-successful:
     needs: build
