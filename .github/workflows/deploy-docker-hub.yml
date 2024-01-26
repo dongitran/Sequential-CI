@@ -58,18 +58,22 @@ jobs:
           docker buildx build -t ideavn/sequential-ci:latest --push .
 
       - name: Remote ssh to pull and run docker
+        env:
+          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DIGITAL_OCEAN_SSH_HOST }}
           username: ${{ secrets.DIGITAL_OCEAN_SSH_USER_NAME }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_PRIVATE_KEY }}
           port: ${{ secrets.DIGITAL_OCEAN_SSH_PORT }}
+          envs: ENV_FILE_CONTENT
           script: |
             whoami
+            echo "$ENV_FILE_CONTENT" > /tmp/.env
             docker pull ideavn/sequential-ci
             docker stop sequential-ci
             docker rm sequential-ci
-            docker run -d --name sequential-ci -p 80:80 --env-file /root/project/.env  ideavn/sequential-ci
+            docker run -d --name sequential-ci -p 80:80 --env-file /tmp/.env  ideavn/sequential-ci
 
   send-notification-successful:
     needs: build
