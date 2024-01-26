@@ -66,9 +66,9 @@ jobs:
           port: ${{ secrets.DIGITAL_OCEAN_SSH_PORT }}
           script: |
             whoami
-            mkdir test
             docker pull ideavn/sequential-ci
             docker stop sequential-ci
+            docker rm sequential-ci
             docker run -d --name sequential-ci -p 80:80 --env-file /root/project/.env  ideavn/sequential-ci
 
   send-notification-successful:
