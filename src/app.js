@@ -177,7 +177,7 @@ async function startApp() {
           });
         }
         if (result?.notAssignGroup && !isEmpty(result?.notAssignGroup)) {
-          listResponse.push(`\n👽 Not assigned group:`);
+          listResponse.push(`\n👽 Not assigned group::`);
           result.notAssignGroup.forEach((item) => {
             listResponse.push(`     ${emoji} <code><b>${item.name}</b></code>`);
           });
