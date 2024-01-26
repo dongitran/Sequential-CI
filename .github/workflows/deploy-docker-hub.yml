@@ -20,25 +20,6 @@ jobs:
             -d text="🚀 <b>Sequential CI</b> Deployment has started!" \
             -d parse_mode=HTML
 
-  remote-ssh-to-pull-and-run-docker:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DIGITAL_OCEAN_SSH_HOST }}
-          username: ${{ secrets.DIGITAL_OCEAN_SSH_USER_NAME }}
-          key: ${{ secrets.DIGITAL_OCEAN_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.DIGITAL_OCEAN_SSH_PORT }}
-          script: |
-            whoami
-            docker stop a
-            mkdir test
-
-
   build:
     runs-on: ubuntu-latest
 
@@ -75,6 +56,20 @@ jobs:
           docker buildx create --name builder --use
           docker buildx inspect builder --bootstrap
           docker buildx build -t ideavn/sequential-ci:latest --push .
+
+      - name: Remote ssh to pull and run docker
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DIGITAL_OCEAN_SSH_HOST }}
+          username: ${{ secrets.DIGITAL_OCEAN_SSH_USER_NAME }}
+          key: ${{ secrets.DIGITAL_OCEAN_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.DIGITAL_OCEAN_SSH_PORT }}
+          script: |
+            whoami
+            mkdir test
+            docker pull ideavn/sequential-ci
+            docker stop sequential-ci
+            docker run -d --name sequential-ci -p 80:80 --env-file /root/project/.env  ideavn/sequential-ci
 
   send-notification-successful:
     needs: build
