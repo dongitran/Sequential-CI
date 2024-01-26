@@ -57,6 +57,22 @@ jobs:
           docker buildx inspect builder --bootstrap
           docker buildx build -t ideavn/sequential-ci:latest --push .
 
+  remote-ssh-to-pull-and-run-docker:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        uses: appleboy/ssh-action@master
+        with: |
+          host: ${{ secrets.DIGITAL_OCEAN_SSH_HOST }}
+          username: ${{ secrets.DIGITAL_OCEAN_SSH_USER_NAME }}
+          key: ${{ secrets.DIGITAL_OCEAN_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.DIGITAL_OCEAN_SSH_PORT }}
+          script: whoami
+
   send-notification-successful:
     needs: build
     runs-on: ubuntu-latest
