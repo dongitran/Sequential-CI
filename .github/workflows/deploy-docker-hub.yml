@@ -73,7 +73,7 @@ jobs:
             docker pull ideavn/sequential-ci
             docker stop sequential-ci
             docker rm sequential-ci
-            docker run -d --name sequential-ci -p 80:80 --env-file /tmp/.env  ideavn/sequential-ci
+            docker run -d --name sequential-ci -p 80:80 --env-file /tmp/.env --restart always ideavn/sequential-ci
             rm -rf /tmp/.env
             docker image prune -a
 
