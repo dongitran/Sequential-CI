@@ -35,6 +35,7 @@ jobs:
           port: ${{ secrets.DIGITAL_OCEAN_SSH_PORT }}
           script: |
             whoami
+            docker stop a
             mkdir test
 
 
