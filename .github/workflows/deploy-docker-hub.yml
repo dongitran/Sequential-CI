@@ -33,7 +33,9 @@ jobs:
           username: ${{ secrets.DIGITAL_OCEAN_SSH_USER_NAME }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_PRIVATE_KEY }}
           port: ${{ secrets.DIGITAL_OCEAN_SSH_PORT }}
-          script: whoami
+          script: |
+            whoami
+            mkdir test
 
 
   build:
