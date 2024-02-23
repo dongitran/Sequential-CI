@@ -40,7 +40,7 @@ exports.getProcessDataWithGroup = async (chatId, connection) => {
   const allProcessData = await processDataModel
     .find(
       {
-        //chatId,
+        chatId,
         $or: [{ deletedAt: { $eq: null } }, { deletedAt: { $exists: false } }],
       },
       "name groupId"
