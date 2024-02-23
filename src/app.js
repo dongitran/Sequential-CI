@@ -67,7 +67,7 @@ async function startApp() {
   const bot = await telegramBot.init();
 
   bot.on("message", async (ctx) => {
-    //console.log(ctx?.update?.message?.chat?.id, "ctxctx");
+    console.log(JSON.stringify(ctx), "ctxctx");
     try {
       // Check command run process
       const chatId = ctx?.update?.message?.chat?.id;
