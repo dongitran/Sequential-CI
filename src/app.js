@@ -120,6 +120,7 @@ async function startApp() {
               step: "waiting-select-process",
             }
           );
+          return;
         } else if (step === "waiting-select-process") {
           const processDataModel = ProcessDataModel(connection);
           const processDatas = await processDataModel.find({
@@ -151,9 +152,8 @@ async function startApp() {
           ctx.reply("🛩 Link process to group successful!", {
             reply_markup: { remove_keyboard: true },
           });
+          return;
         }
-
-        return;
       }
 
       if (msg?.trim() === "/runall") {
