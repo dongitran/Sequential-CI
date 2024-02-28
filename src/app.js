@@ -71,6 +71,7 @@ async function startApp() {
     try {
       // Check command run process
       const chatId = ctx?.update?.message?.chat?.id;
+      const messageThreadId = ctx?.update?.message?.message_thread_id;
       const msg = ctx?.update?.message?.text?.trim();
 
       const replyToMessage = ctx?.update?.message?.reply_to_message;
@@ -161,7 +162,7 @@ async function startApp() {
       } else if (msg?.substring(0, 5) == "/run:") {
         runProcessWithName(msg?.substring(5).trim(), connection, chatId);
       } else if (msg?.substring(0, 5) === "/list") {
-        const result = await getProcessDataWithGroup(chatId, connection);
+        const result = await getProcessDataWithGroup(chatId, connection, messageThreadId);
         const emoji = "⚙️";
         const listResponse = [];
         if (result?.group && !isEmpty(result?.group)) {
@@ -201,7 +202,7 @@ async function startApp() {
         const command = msg?.substring(7)?.trim();
         const id = command?.split(" ")[0];
         const newName = getDataByKey(command, "name");
-        await cloneProcess(id, connection, chatId, newName);
+        await cloneProcess(id, connection, chatId, messageThreadId, newName);
       } else if (msg?.substring(0, 8) === "/delete:") {
         const command = msg?.substring(8)?.trim();
         const id = command?.split(" ")[0];

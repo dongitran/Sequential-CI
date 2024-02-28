@@ -593,12 +593,18 @@ const runProcessWithName = async (nameOrId, connection, chatId) => {
   }
 };
 
-const cloneProcess = async (id, connection, chatId, newName) => {
+const cloneProcess = async (
+  id,
+  connection,
+  chatId,
+  messageThreadId,
+  newName
+) => {
   let telegramManager = undefined;
   try {
     // Create object telegram manager
     const bot = telegramBot.getBot();
-    telegramManager = new TelegramManager(bot, chatId);
+    telegramManager = new TelegramManager(bot, chatId, messageThreadId);
 
     // Get process
     const processDataModel = ProcessDataModel(connection);
@@ -617,6 +623,7 @@ const cloneProcess = async (id, connection, chatId, newName) => {
       ...(newName && { name: newName }),
       createdAt: new Date(),
       chatId,
+      messageThreadId,
       cloneFrom: processValue._id,
     });
 

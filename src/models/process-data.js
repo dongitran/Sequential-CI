@@ -7,6 +7,7 @@ const ProcessData = new Schema({
   status: String,
   name: String,
   chatId: String,
+  messageThreadId: Number || undefined || null,
   cloneFrom: {
     type: Types.ObjectId,
     ref: "sequential_ci_process_datas",

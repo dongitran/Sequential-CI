@@ -1,11 +1,12 @@
 require("dotenv").config();
 
 class TelegramManager {
-  constructor(bot, chatId) {
+  constructor(bot, chatId, messageThreadId) {
     this.bot = bot;
     this.chatId = chatId;
 
     this.messageId = null;
+    this.messageThreadId = messageThreadId;
     this.messageCurrent = "";
     this.messageUpdated = false;
     this.timeCheckSendMessage = new Date().getTime();
@@ -22,6 +23,7 @@ class TelegramManager {
         message,
         {
           parse_mode: "HTML",
+          message_thread_id: this.messageThreadId,
         }
       );
       this.messageId = context.message_id;

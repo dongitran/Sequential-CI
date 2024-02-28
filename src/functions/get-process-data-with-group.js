@@ -34,13 +34,18 @@ function convertArrayToObject(arr) {
   return result;
 }
 
-exports.getProcessDataWithGroup = async (chatId, connection) => {
+exports.getProcessDataWithGroup = async (
+  chatId,
+  connection,
+  messageThreadId
+) => {
   const processDataModel = ProcessDataModel(connection);
   ProcessGroupModel(connection);
   const allProcessData = await processDataModel
     .find(
       {
         chatId,
+        messageThreadId,
         $or: [{ deletedAt: { $eq: null } }, { deletedAt: { $exists: false } }],
       },
       "name groupId"
