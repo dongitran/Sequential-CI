@@ -483,18 +483,25 @@ const runProcessItem = async (
   return [parameters, resultProcessItem, subProcess, inputCommand];
 };
 
-const runProcessWithName = async (nameOrId, connection, chatId) => {
+const runProcessWithName = async (
+  nameOrId,
+  connection,
+  chatId,
+  messageThreadId
+) => {
   // Create object telegram manager
   const bot = telegramBot.getBot();
-  const telegramManager = new TelegramManager(bot, chatId);
+  const telegramManager = new TelegramManager(bot, chatId, messageThreadId);
 
   // Get process
   const ProcessDataModelWithConnection = ProcessDataModel(connection);
   let processValue = await ProcessDataModelWithConnection.findOne({
     name: nameOrId,
-    //chatId,
+    chatId,
+    messageThreadId,
     //status: PROCESS_STATUS.ACTIVE,
   });
+  console.log(processValue, "processValue");
 
   if (!processValue) {
     if ((nameOrId.length = 24)) {

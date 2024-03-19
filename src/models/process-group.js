@@ -7,6 +7,7 @@ const ProcessGroup = new Schema({
   status: String,
   name: String,
   chatId: String,
+  messageThreadId: Number || undefined || null,
 });
 
 const ProcessGroupModel = (connection) => {

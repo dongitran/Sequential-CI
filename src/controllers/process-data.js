@@ -6,7 +6,7 @@ const { Types } = require("mongoose");
 
 exports.createData = async (req, res) => {
   try {
-    const { name, status, chatId } = req.body;
+    const { name, status, chatId, messageThreadId } = req.body;
 
     // Validate data
     if (!name || !req.body.process) {
@@ -16,7 +16,11 @@ exports.createData = async (req, res) => {
     // Check name exist
     const connection = await connectToMongo(process.env.MONGO_URI);
     const processDataModel = ProcessDataModel(connection);
-    const existingData = await processDataModel.findOne({ name });
+    const existingData = await processDataModel.findOne({
+      name,
+      chatId,
+      messageThreadId,
+    });
     if (existingData) {
       return res.status(400).json({ message: "Process name exist" });
     }
@@ -28,6 +32,7 @@ exports.createData = async (req, res) => {
       process: req.body.process,
       status: status || PROCESS_STATUS.INACTIVE,
       chatId,
+      messageThreadId,
     });
 
     const savedData = await newProcessData.save();
@@ -44,7 +49,7 @@ exports.createData = async (req, res) => {
 
 exports.updateDataByName = async (req, res) => {
   try {
-    const { name, status } = req.body;
+    const { name, status, chatId, messageThreadId } = req.body;
 
     // Validate data
     if (!name || !req.body.process) {
@@ -55,7 +60,7 @@ exports.updateDataByName = async (req, res) => {
     const connection = await connectToMongo(process.env.MONGO_URI);
     const processDataModel = ProcessDataModel(connection);
     const updatedData = await processDataModel.findOneAndUpdate(
-      { name },
+      { name, chatId, messageThreadId },
       {
         process: req.body.process,
         ...(status && { status }),

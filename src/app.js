@@ -17,7 +17,7 @@ const { ProcessDataModel } = require("./models/process-data");
 const { ProcessLogModel } = require("./models/process-log");
 const { getDataByKey } = require("./utils/common");
 const { MessageResponse } = require("./constants/message-response");
-const { createGroup } = require("./controllers/process-group");
+const { createGroup, listGroup } = require("./controllers/process-group");
 const { Markup } = require("telegraf");
 const { ProcessGroupModel } = require("./models/process-group");
 const {
@@ -28,6 +28,7 @@ const { isEmpty } = require("lodash");
 const {
   getProcessDataWithGroup,
 } = require("./functions/get-process-data-with-group");
+const { parse, stringify } = require("flatted");
 
 async function startApp() {
   const connection = await connectToMongo(process.env.MONGO_URI);
@@ -67,7 +68,7 @@ async function startApp() {
   const bot = await telegramBot.init();
 
   bot.on("message", async (ctx) => {
-    console.log(JSON.stringify(ctx), "ctxctx");
+    console.log(parse(stringify(ctx)), "ctxctx");
     try {
       // Check command run process
       const chatId = ctx?.update?.message?.chat?.id;
@@ -160,9 +161,18 @@ async function startApp() {
       if (msg?.trim() === "/runall") {
         cronJobProcess(connection, chatId);
       } else if (msg?.substring(0, 5) == "/run:") {
-        runProcessWithName(msg?.substring(5).trim(), connection, chatId);
+        runProcessWithName(
+          msg?.substring(5).trim(),
+          connection,
+          chatId,
+          messageThreadId
+        );
       } else if (msg?.substring(0, 5) === "/list") {
-        const result = await getProcessDataWithGroup(chatId, connection, messageThreadId);
+        const result = await getProcessDataWithGroup(
+          chatId,
+          connection,
+          messageThreadId
+        );
         const emoji = "⚙️";
         const listResponse = [];
         if (result?.group && !isEmpty(result?.group)) {
@@ -178,7 +188,7 @@ async function startApp() {
           });
         }
         if (result?.notAssignGroup && !isEmpty(result?.notAssignGroup)) {
-          listResponse.push(`\n👽 Not assigned group::`);
+          listResponse.push(`\n👽 Unassigned group:`);
           result.notAssignGroup.forEach((item) => {
             listResponse.push(`     ${emoji} <code><b>${item.name}</b></code>`);
           });
@@ -207,9 +217,11 @@ async function startApp() {
         const command = msg?.substring(8)?.trim();
         const id = command?.split(" ")[0];
         await deleteProcess(id, connection, chatId);
+      } else if (msg?.substring(0, 13) === "/grouplist") {
+        await listGroup(chatId, connection, messageThreadId);
       } else if (msg?.substring(0, 13) === "/groupcreate:") {
         const groupName = msg?.substring(13)?.trim();
-        await createGroup(chatId, groupName, connection);
+        await createGroup(chatId, groupName, connection, messageThreadId);
       } else if (msg?.substring(0, 10) === "/grouplink") {
         // TODO: check not process assign to group
         const processGroupModel = ProcessGroupModel(connection);

@@ -1,5 +1,4 @@
 const { ProcessDataModel } = require("../models/process-data");
-const { ProcessGroupModel } = require("../models/process-group");
 
 function convertArrayToObject(arr) {
   const grouped = arr.reduce((acc, obj) => {
@@ -40,7 +39,6 @@ exports.getProcessDataWithGroup = async (
   messageThreadId
 ) => {
   const processDataModel = ProcessDataModel(connection);
-  ProcessGroupModel(connection);
   const allProcessData = await processDataModel
     .find(
       {
