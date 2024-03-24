@@ -31,6 +31,7 @@ const {
 const { parse, stringify } = require("flatted");
 
 async function startApp() {
+  console.log(process.env.MONGO_URI, "process.env.MONGO_URI");
   const connection = await connectToMongo(process.env.MONGO_URI);
 
   app.listen(process.env.PORT, () => {
