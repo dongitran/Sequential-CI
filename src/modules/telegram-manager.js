@@ -1,3 +1,5 @@
+const { delayWithAsync } = require("../utils/common");
+
 require("dotenv").config();
 
 class TelegramManager {
@@ -17,22 +19,29 @@ class TelegramManager {
 
     // TODO: check preview message already was send
 
-    try {
-      const context = await this.bot.telegram.sendMessage(
-        this.chatId,
-        message,
-        {
-          parse_mode: "HTML",
-          message_thread_id: this.messageThreadId,
-        }
-      );
-      this.messageId = context.message_id;
-      this.messageUpdated = false;
+    let success = false,
+      retryCount = 10;
+    do {
+      try {
+        const context = await this.bot.telegram.sendMessage(
+          this.chatId,
+          message,
+          {
+            parse_mode: "HTML",
+            message_thread_id: this.messageThreadId,
+          }
+        );
+        this.messageId = context.message_id;
+        this.messageUpdated = false;
 
-      return context.message_id;
-    } catch (error) {
-      console.log(`Send message to group ${this.chatId} error: `, error);
-    }
+        success = true;
+        return context.message_id;
+      } catch (error) {
+        console.log(`Send message to group ${this.chatId} error: `, error);
+        await delayWithAsync(2000);
+        retryCount--;
+      }
+    } while (!success && retryCount > 0);
   }
 
   async appendMessageAndEditMessage(message) {
