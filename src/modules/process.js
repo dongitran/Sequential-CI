@@ -495,6 +495,15 @@ const runProcessWithName = async (
 
   // Get process
   const ProcessDataModelWithConnection = ProcessDataModel(connection);
+  console.log(
+    {
+      name: nameOrId,
+      chatId,
+      messageThreadId,
+      //status: PROCESS_STATUS.ACTIVE,
+    },
+    "query"
+  );
   let processValue = await ProcessDataModelWithConnection.findOne({
     name: nameOrId,
     chatId,
