@@ -141,6 +141,7 @@ const runProcessItem = async (
             let commandString = processItem.parameters[parameterKey];
             Object.keys(parameters).forEach((key) => {
               const regex = new RegExp(`{parameters\\['${key}']}`, "g");
+              console.log(commandString, "commandString");
               commandString = commandString.replace(regex, parameters[key]);
             });
 
