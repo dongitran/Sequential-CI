@@ -39,6 +39,9 @@ async function startApp() {
 
   app.use(express.static("public"));
   app.use(express.static(path.join(__dirname, "public")));
+  app.get("/detail/json-viewer.min.js", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "json-viewer.min.js"));
+  });
   app.get("/detail/:id", (req, res) => {
     // Render your HTML file with the detailId
     res.sendFile(path.join(__dirname, "public", "detail.html"));
